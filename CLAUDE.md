@@ -28,6 +28,10 @@ npx serve dist -p 8000
 
 No automated test suite exists - relies on manual testing via test.html and console inspection.
 
+### Publishing
+- `npm run prepublishOnly` - Automatically runs build before publishing to npm
+- `npm publish` - Publish to npm
+
 ### Multi-User Testing
 
  A major usecase for an IRL Browser mini app is multiple people physically present at the same time, each with their own profile. The simulator supports testing with multiple users simultaneously via URL parameters and preset profiles.
