@@ -45,72 +45,99 @@ function createDebugUIImpl(simulator: Simulator): void {
       #irl-browser-simulator-debug {
         position: fixed;
         bottom: 10px;
-        right: 10px;
+        left: 10px;
         z-index: 999999;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         font-size: 13px;
-        max-width: 320px;
+        max-width: 340px;
       }
       .irl-sim-panel {
         background: #1e1e1e;
         color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
         overflow: hidden;
       }
       .irl-sim-header {
-        background: #2d2d2d;
-        padding: 12px 16px;
+        background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%);
+        padding: 14px 18px;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-weight: 600;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
       }
       .irl-sim-close {
         background: none;
         border: none;
-        color: #888;
-        font-size: 20px;
+        color: #999;
+        font-size: 22px;
         cursor: pointer;
-        padding: 0;
+        padding: 4px 8px;
         line-height: 1;
+        border-radius: 4px;
+        transition: all 0.15s ease;
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      .irl-sim-close:hover { color: #fff; }
+      .irl-sim-close:hover {
+        color: #fff;
+        background: rgba(255,255,255,0.08);
+      }
+      .irl-sim-close:focus-visible {
+        outline: 2px solid #0066cc;
+        outline-offset: 2px;
+      }
       .irl-sim-body {
-        padding: 16px;
+        padding: 18px;
       }
       .irl-sim-section {
-        margin-bottom: 16px;
+        margin-bottom: 20px;
       }
       .irl-sim-section:last-child {
         margin-bottom: 0;
       }
       .irl-sim-label {
-        color: #888;
+        color: #aaa;
         font-size: 11px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 8px;
+        letter-spacing: 0.8px;
+        margin-bottom: 10px;
+        font-weight: 600;
       }
       .irl-sim-btn {
         background: #0066cc;
         color: #fff;
         border: none;
-        padding: 8px 12px;
-        border-radius: 4px;
+        padding: 12px 16px;
+        border-radius: 6px;
         cursor: pointer;
         width: 100%;
-        margin-bottom: 6px;
+        margin-bottom: 8px;
         font-size: 13px;
+        font-weight: 500;
         transition: all 0.15s ease;
         position: relative;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
       .irl-sim-btn:hover {
         background: #0052a3;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,102,204,0.3);
       }
       .irl-sim-btn:active {
         background: #003d7a;
-        transform: scale(0.98);
+        transform: translateY(0);
+      }
+      .irl-sim-btn:focus-visible {
+        outline: 2px solid #0066cc;
+        outline-offset: 2px;
       }
       .irl-sim-btn.clicked {
         background: #00aa00;
@@ -119,71 +146,118 @@ function createDebugUIImpl(simulator: Simulator): void {
         margin-bottom: 0;
       }
       .irl-sim-btn-profile {
-        background: #444;
+        background: #333;
         color: #fff;
         text-align: left;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        justify-content: flex-start;
+        gap: 12px;
+        border: 1px solid rgba(255,255,255,0.08);
       }
       .irl-sim-btn-profile:hover {
-        background: #555;
+        background: #3d3d3d;
+        border-color: rgba(255,255,255,0.12);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       }
       .irl-sim-btn-profile:active {
-        background: #666;
+        background: #424242;
+      }
+      .irl-sim-profile-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        object-fit: cover;
+        border: 2px solid rgba(255,255,255,0.15);
+      }
+      .irl-sim-profile-avatar-large {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        object-fit: cover;
+        border: 3px solid ${profileColor};
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       }
       .irl-sim-profile-badge {
-        width: 24px;
-        height: 24px;
+        width: 32px;
+        height: 32px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 12px;
+        font-size: 14px;
         font-weight: 600;
         flex-shrink: 0;
+        border: 2px solid rgba(255,255,255,0.15);
       }
-      .irl-sim-profile {
-        font-size: 12px;
-        color: #888;
-        padding: 8px 12px;
-        background: #2d2d2d;
-        border-radius: 4px;
-        margin-bottom: 6px;
+      .irl-sim-profile-badge-large {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
-        gap: 8px;
-        border-left: 3px solid ${profileColor};
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 600;
+        flex-shrink: 0;
+        border: 3px solid ${profileColor};
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      }
+      .irl-sim-profile {
+        font-size: 13px;
+        color: #bbb;
+        padding: 12px 14px;
+        background: #2a2a2a;
+        border-radius: 6px;
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 1px solid rgba(255,255,255,0.06);
       }
       .irl-sim-profile strong {
         color: #fff;
+        font-size: 14px;
+        display: block;
+        margin-bottom: 2px;
+      }
+      .irl-sim-profile-details {
+        flex: 1;
+        min-width: 0;
+      }
+      .irl-sim-profile-did {
+        font-size: 11px;
+        color: #888;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
       .irl-sim-collapsed-icon {
-        width: 50px;
-        height: 50px;
+        width: 56px;
+        height: 56px;
         background: #1e1e1e;
-        border-radius: 8px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         transition: all 0.2s ease;
-        border: 1px solid #2d2d2d;
+        border: none;
+        padding: 0;
       }
       .irl-sim-collapsed-icon:hover {
         background: #2d2d2d;
-        transform: scale(1.05);
+        transform: scale(1.08);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.5);
       }
-      .irl-sim-icon-text {
-        color: #fff;
-        font-size: 10px;
-        font-weight: 600;
-        margin-top: 2px;
+      .irl-sim-collapsed-icon:focus-visible {
+        outline: 2px solid #0066cc;
+        outline-offset: 2px;
       }
       .irl-sim-icon-emoji {
-        font-size: 20px;
+        font-size: 24px;
         line-height: 1;
       }
       .irl-sim-panel {
@@ -198,29 +272,43 @@ function createDebugUIImpl(simulator: Simulator): void {
       @media (max-width: 480px) {
         #irl-browser-simulator-debug {
           bottom: 5px;
-          right: 5px;
+          left: 5px;
           max-width: calc(100vw - 10px);
+        }
+        .irl-sim-body {
+          padding: 14px;
+        }
+        .irl-sim-btn,
+        .irl-sim-btn-profile {
+          min-height: 48px;
+          font-size: 14px;
+        }
+        .irl-sim-close {
+          min-width: 48px;
+          min-height: 48px;
         }
       }
     </style>
-    <div class="irl-sim-collapsed-icon" id="irl-sim-collapsed-icon">
+    <button class="irl-sim-collapsed-icon hidden" id="irl-sim-collapsed-icon" aria-label="Open IRL Browser Debugger" aria-expanded="false">
       <div class="irl-sim-icon-emoji">🐛</div>
-    </div>
-    <div class="irl-sim-panel hidden" id="irl-sim-panel">
+    </button>
+    <div class="irl-sim-panel" id="irl-sim-panel" role="region" aria-label="IRL Browser Debugger">
       <div class="irl-sim-header">
         <span>IRL Browser Debugger</span>
-        <button class="irl-sim-close" id="irl-sim-close-btn">&times;</button>
+        <button class="irl-sim-close" id="irl-sim-close-btn" aria-label="Close debugger">&times;</button>
       </div>
       <div class="irl-sim-body">
         <div class="irl-sim-section">
           <div class="irl-sim-label">Current Profile</div>
           <div class="irl-sim-profile">
-            <div class="irl-sim-profile-badge" style="background-color: ${profileColor}">
-              ${profile.name.charAt(0)}
-            </div>
-            <div>
-              <strong>${profile.name}</strong><br>
-              <span>${truncatedDID}</span>
+            ${profile.avatar
+              ? `<img src="${profile.avatar}" alt="${profile.name}" class="irl-sim-profile-avatar-large" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                 <div class="irl-sim-profile-badge-large" style="background-color: ${profileColor}; display: none;">${profile.name.charAt(0)}</div>`
+              : `<div class="irl-sim-profile-badge-large" style="background-color: ${profileColor}">${profile.name.charAt(0)}</div>`
+            }
+            <div class="irl-sim-profile-details">
+              <strong>${profile.name}</strong>
+              <div class="irl-sim-profile-did" title="${profile.did}">${truncatedDID}</div>
             </div>
           </div>
         </div>
@@ -228,24 +316,19 @@ function createDebugUIImpl(simulator: Simulator): void {
           <div class="irl-sim-label">Open as Different User</div>
           ${otherProfiles.map(p => {
             const color = PROFILE_COLORS[p.profileId] || '#666';
-            return `<button class="irl-sim-btn irl-sim-btn-profile" data-profile-id="${p.profileId}">
-              <div class="irl-sim-profile-badge" style="background-color: ${color}">
-                ${p.name.charAt(0)}
-              </div>
+            return `<button class="irl-sim-btn irl-sim-btn-profile" data-profile-id="${p.profileId}" aria-label="Open as ${p.name}">
+              ${p.avatar
+                ? `<img src="${p.avatar}" alt="${p.name}" class="irl-sim-profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                   <div class="irl-sim-profile-badge" style="background-color: ${color}; display: none;">${p.name.charAt(0)}</div>`
+                : `<div class="irl-sim-profile-badge" style="background-color: ${color}">${p.name.charAt(0)}</div>`
+              }
               <span>${p.name}</span>
             </button>`;
           }).join('\n          ')}
         </div>
         <div class="irl-sim-section">
-          <div class="irl-sim-label">API Methods</div>
-          <button class="irl-sim-btn" id="irl-sim-get-profile">Get Profile Details</button>
-          <button class="irl-sim-btn" id="irl-sim-get-avatar">Get Avatar</button>
-          <button class="irl-sim-btn" id="irl-sim-get-browser">Get Browser Details</button>
-        </div>
-        <div class="irl-sim-section">
           <div class="irl-sim-label">Events</div>
-          <button class="irl-sim-btn" id="irl-sim-disconnect">Trigger Profile Disconnected</button>
-          <button class="irl-sim-btn" id="irl-sim-close">Close WebView</button>
+          <button class="irl-sim-btn" id="irl-sim-disconnect" aria-label="Trigger profile disconnected event">Trigger Profile Disconnected</button>
         </div>
       </div>
     </div>
@@ -265,14 +348,16 @@ function createDebugUIImpl(simulator: Simulator): void {
   const toggleExpanded = () => {
     isExpanded = !isExpanded;
     const panel = document.getElementById('irl-sim-panel');
-    const icon = document.getElementById('irl-sim-collapsed-icon');
+    const icon = document.getElementById('irl-sim-collapsed-icon') as HTMLButtonElement;
 
     if (isExpanded) {
       icon?.classList.add('hidden');
+      icon?.setAttribute('aria-expanded', 'true');
       panel?.classList.remove('hidden');
     } else {
       panel?.classList.add('hidden');
       icon?.classList.remove('hidden');
+      icon?.setAttribute('aria-expanded', 'false');
     }
   };
 
@@ -287,46 +372,11 @@ function createDebugUIImpl(simulator: Simulator): void {
     closeBtn.addEventListener('click', toggleExpanded);
   }
 
-  const getProfileBtn = document.getElementById('irl-sim-get-profile');
-  if (getProfileBtn) {
-    getProfileBtn.addEventListener('click', async () => {
-      showButtonFeedback(getProfileBtn);
-      const jwt = await window.irlBrowser?.getProfileDetails();
-      console.log('Profile JWT:', jwt);
-    });
-  }
-
-  const getAvatarBtn = document.getElementById('irl-sim-get-avatar');
-  if (getAvatarBtn) {
-    getAvatarBtn.addEventListener('click', async () => {
-      showButtonFeedback(getAvatarBtn);
-      const jwt = await window.irlBrowser?.getAvatar();
-      console.log('Avatar JWT:', jwt);
-    });
-  }
-
-  const getBrowserBtn = document.getElementById('irl-sim-get-browser');
-  if (getBrowserBtn) {
-    getBrowserBtn.addEventListener('click', () => {
-      showButtonFeedback(getBrowserBtn);
-      const details = window.irlBrowser?.getBrowserDetails();
-      console.log('Browser Details:', details);
-    });
-  }
-
   const disconnectBtn = document.getElementById('irl-sim-disconnect');
   if (disconnectBtn) {
     disconnectBtn.addEventListener('click', () => {
       showButtonFeedback(disconnectBtn);
       simulator.sendDisconnectMessage();
-    });
-  }
-
-  const closeWebViewBtn = document.getElementById('irl-sim-close');
-  if (closeWebViewBtn) {
-    closeWebViewBtn.addEventListener('click', () => {
-      showButtonFeedback(closeWebViewBtn);
-      window.irlBrowser?.close();
     });
   }
 
@@ -342,9 +392,10 @@ function createDebugUIImpl(simulator: Simulator): void {
     });
   });
 
-  // Keyboard shortcut: Ctrl+Shift+I to toggle between collapsed and expanded
+  // Keyboard shortcut: Ctrl+Shift+D to toggle between collapsed and expanded
   document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+      e.preventDefault();
       toggleExpanded();
     }
   });
