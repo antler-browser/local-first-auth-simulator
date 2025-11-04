@@ -29,8 +29,11 @@ npx serve dist -p 8000
 No automated test suite exists - relies on manual testing via test.html and console inspection.
 
 ### Publishing
-- `npm version <major|minor|patch>` - Automatically runs build before publishing to npm
-- `npm publish` - Publish to npm
+- `npm version <major|minor|patch>`
+- `git push origin develop && git checkout main && git merge develop && git push origin main && git checkout develop`
+- `git push --tags`
+- `npm publish`
+- `gh release create v<version> --generate-notes`
 
 ### Multi-User Testing
 
