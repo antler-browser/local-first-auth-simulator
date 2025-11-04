@@ -2,6 +2,7 @@ import type { SimulatorConfig, ResolvedSimulatorConfig, Profile, JWTPayload } fr
 import { createJWT } from './jwt';
 import { MockIrlBrowser } from './api';
 import { createDebugUI } from './ui';
+import { getDefaultProfile } from './profiles';
 
 /**
  * Core Simulator class
@@ -128,17 +129,9 @@ export class Simulator {
       return config.profile;
     }
 
-    // Otherwise, use the default Paul Morphy profile
-    console.log('[IRL Browser Simulator] Using default Paul Morphy profile');
-    return {
-      did: "did:key:z6MknKCHmHVJpPSLpHTgjPworW6xPzMFgVe4ZLaakd5KeLAT",
-      name: "Paul Morphy",
-      avatar: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI1MCIgZmlsbD0iI2ZmNmY2MSIvPjx0ZXh0IHg9IjUwIiB5PSI2MCIgZm9udC1zaXplPSI0NSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiIgZm9udC1mYW1pbHk9IkFyaWFsIj5QPC90ZXh0Pjwvc3ZnPg==",
-      socials: [
-        { platform: "INSTAGRAM", handle: "paul.chess" },
-        { platform: "TWITTER", handle: "paul_morphy" }
-      ],
-      privateKey: "180a7ddde4cb6c586c7d7f7a49324856f1eac35e8aaf63eaf6579fa02b1495c8"
-    };
+    // Otherwise, use the default profile from profiles.ts
+    const defaultProfile = getDefaultProfile();
+    console.log('[IRL Browser Simulator] Using default profile:', defaultProfile.name);
+    return defaultProfile;
   }
 }

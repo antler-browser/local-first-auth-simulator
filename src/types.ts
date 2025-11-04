@@ -32,9 +32,6 @@ export interface IRLBrowser {
 
 export interface SimulatorConfig {
   // Profile to use for simulation
-  // Import your profile JSON in your project and pass it here
-  // Example: import myProfile from './danny.profile.json'
-  // Then: enableIrlBrowserSimulator({ profile: myProfile })
   profile?: Profile;  // defaults to Paul Morphy example profile
 
   jwtDetails?: {
@@ -85,11 +82,12 @@ export interface Social {
 }
 
 export interface Profile {
+  profileId: string;  // Short identifier for URL parameter (e.g., "alice")
   did: string;
   name: string;
   avatar?: string;  // Base64 data URI
   socials?: Social[];
-  privateKey: string;  // ED25519 private key in hex format
+  privateKey: string;  // ED25519 secret key in base64 format (64 bytes: seed + public key)
 }
 
 /**

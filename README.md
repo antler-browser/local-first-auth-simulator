@@ -12,7 +12,8 @@ This package injects a mock `window.irlBrowser` API into your browser, complete 
 
 - Mock `window.irlBrowser` API that matches the real IRL Browser behavior
 - Floating debug UI for triggering API methods and events
-- JWT signing with ED25519 keys (fully compatible with real IRL Browser)
+- JWT signing with ED25519 keys using @stablelib/ed25519
+- Multi-user testing support with multiple tabs using URL parameter `?irlProfile=<id>`
 - Simulated network delays for realistic testing
 - Permission request flows
 - TypeScript support with full type definitions
@@ -28,11 +29,37 @@ npm install --save-dev irl-browser-simulator
 ## Quick Start
 
 ```typescript
-import { enableIrlBrowserSimulator } from 'irl-browser-simulator';
+if (import.meta.env.DEV) {
+  const simulator = await import('irl-browser-simulator')
+  simulator.enableIrlBrowserSimulator({
+    profile: simulator.getProfileById('alice')
+  })
+}
+```
 
-// Enable in development mode
-if (process.env.NODE_ENV === 'development') {
-  enableIrlBrowserSimulator();
+## Multi-User Testing
+
+A major usecase for an IRL Browser mini app is multiple people physically present at the same time, each with their own profile. You can simulate multiple users by opening multiple tabs with the same mini app, each with a different URL parameter `?irlProfile=<id>`.
+
+The simulator comes with 6 preset profiles for testing multi-user scenarios.
+
+**Testing via URL:**
+- Open `http://localhost:your-port?irlProfile=alice` in one tab → Alice's profile
+- Open `http://localhost:your-port?irlProfile=bob` in another tab → Bob's profile
+- Each tab simulates a different user!
+
+**Debug UI:**
+The debug UI includes buttons to quickly open new tabs with different profiles.
+
+## Changing the default profile
+By default, the simulator will use the Paul Morphy profile. To use a different profile, pass in the ID of the profile to the `enableIrlBrowserSimulator` function. You can get the profile by its ID using the `getProfileById` function.
+
+```typescript
+if (import.meta.env.DEV) {
+  const simulator = await import('irl-browser-simulator')
+  simulator.enableIrlBrowserSimulator({
+    profile: simulator.getProfileById('alice')
+  })
 }
 ```
 
@@ -40,60 +67,9 @@ That's it! The simulator will:
 - Inject `window.irlBrowser` into your page
 - Load a default test profile (Paul Morphy)
 - Show a floating debug panel
+- Automatically load the profile from the URL parameter `?irlProfile=<id>`
+- Test multi-user scenarios across tabs
 - Be ready for your mini-app to use
-
-## Usage Examples
-
-### Example 1: Zero Config (Recommended for Quick Start)
-
-```javascript
-import { enableIrlBrowserSimulator } from 'irl-browser-simulator';
-
-if (import.meta.env.DEV) { // Check if we are in development mode
-  enableIrlBrowserSimulator();
-}
-```
-
-### Example 2: Custom Profile
-
-```javascript
-import { enableIrlBrowserSimulator } from 'irl-browser-simulator';
-import myProfile from './danny.profile.json';  // Import your profile JSON
-
-if (import.meta.env.DEV) { // Check if we are in development mode
-  enableIrlBrowserSimulator({
-    profile: myProfile,  // Pass the imported profile object
-    jwtDetails: {
-      audience: 'https://my-mini-app.com',
-      expirationOffsetSeconds: 300  // 5 minutes
-    },
-    browserDetails: {
-      platform: 'android',
-      supportedPermissions: ['profile', 'location']
-    },
-    networkDelayMs: 100,  // Slower network simulation
-    showDebugUI: true
-  });
-}
-```
-
-**Note:** Your bundler (Vite, Next.js, etc.) handles the JSON import.
-
-## Generating Your Own Keys
-
-The simulator includes a utility to generate Ed25519 keypairs and DIDs:
-
-```typescript
-import { generateProfileKeys } from 'irl-browser-simulator';
-
-// Generate a complete profile key set
-const { privateKey, did } = await generateProfileKeys();
-
-console.log('DID:', did);         // did:key:z...
-console.log('Private Key:', privateKey);  // hex string
-```
-
-Use these values in your custom profile configuration. **Important:** Never commit private keys to version control!
 
 ## IRL Browser Standard
 
@@ -103,8 +79,7 @@ See `docs/irl-browser-standard.md` for the IRL Browser Standard, which defines h
 
 ```typescript
 interface SimulatorConfig {
-  profile?: Profile;  // Custom profile object (import from your project)
-                      // Defaults to Paul Morphy example profile if no profile is provided
+  profile?: Profile;  // Custom profile object, defaults to Paul Morphy profile if no profile is provided
                       
   jwtDetails?: {
     audience?: string;  // Mini-app domain (defaults to window.location.origin)
@@ -121,27 +96,20 @@ interface SimulatorConfig {
   networkDelayMs?: number;  // Simulated delay (defaults to 50ms)
   showDebugUI?: boolean;  // Show debug panel (defaults to true)
 }
-
-// Profile structure
-interface Profile {
-  did: string;              // Decentralized identifier (did:key:z...)
-  name: string;             // Display name
-  avatar?: string;          // Base64 data URI (optional)
-  socials?: Social[];       // Array of social platform handles (optional, defaults to empty array)
-  privateKey: string;       // ED25519 private key (hex format) for JWT signing
-}
 ```
 
 ## Debug UI
 
 The floating debug panel provides:
-- Current profile information
-- Buttons to trigger API methods
+- Current profile information with color-coded badge
+- Buttons to trigger API methods (getProfileDetails, getAvatar, etc.)
+- Buttons to open new tabs with different user profiles
 - Buttons to send events (disconnect, errors)
+- Keyboard shortcut: `Ctrl+Shift+I` to toggle visibility
 - Quick testing without writing code
 
 ## Security Notes
 
-- Never commit `*.profile.json` files with real private keys
-- This is a development tool - do not use in production! 
-- JWTs are properly signed and can be verified using the issuer's public key
+- This is a development tool - do not use in production!
+- JWTs are properly signed using @stablelib/ed25519
+- All JWTs can be verified using the issuer's public key extracted from the DID

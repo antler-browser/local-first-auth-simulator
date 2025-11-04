@@ -1,5 +1,6 @@
-import * as ed from '@noble/ed25519';
-import { encode as base58Encode } from 'base58-universal';
+import * as ed25519 from '@stablelib/ed25519';
+import { encode as base58Encode, decode as base58Decode } from 'base58-universal';
+import * as base64 from 'base64-js';
 
 /**
  * Ed25519 multicodec prefix for did:key format
@@ -8,28 +9,52 @@ import { encode as base58Encode } from 'base58-universal';
  */
 const ED25519_MULTICODEC_PREFIX = new Uint8Array([0xed, 0x01]);
 
+// Key sizes
+const SEED_SIZE = 32; // Ed25519 seed size in bytes
+
+/**
+ * Generates a cryptographically secure random seed for key generation
+ */
+function generateRandomSeed(): Uint8Array {
+  // Use crypto.getRandomValues in browser, or crypto.randomBytes in Node.js
+  const seed = new Uint8Array(SEED_SIZE);
+
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    // Browser environment
+    crypto.getRandomValues(seed);
+  } else if (typeof require !== 'undefined') {
+    // Node.js environment
+    const nodeCrypto = require('crypto');
+    const randomBytes = nodeCrypto.randomBytes(SEED_SIZE);
+    seed.set(randomBytes);
+  } else {
+    throw new Error('No secure random number generator available');
+  }
+
+  return seed;
+}
+
 /**
  * Generate a new Ed25519 keypair
- * @returns Object containing privateKey (hex string) and publicKey (Uint8Array)
+ * @returns Object containing privateKey (base64 string, 64 bytes) and publicKey (Uint8Array, 32 bytes)
  */
-export async function generateKeyPair(): Promise<{
+async function generateKeyPair(): Promise<{
   privateKey: string;
   publicKey: Uint8Array;
 }> {
-  // Generate random private key (32 bytes)
-  const privateKeyBytes = ed.utils.randomPrivateKey();
+  // Generate random seed (32 bytes)
+  const seed = generateRandomSeed();
 
-  // Derive public key from private key
-  const publicKeyBytes = await ed.getPublicKeyAsync(privateKeyBytes);
+  // Generate keypair from seed
+  const keyPair = ed25519.generateKeyPairFromSeed(seed);
 
-  // Convert private key to hex string for storage
-  const privateKeyHex = Array.from(privateKeyBytes)
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('');
+  // Ed25519 secretKey is 64 bytes (includes 32-byte seed + 32-byte public key)
+  // Encode as base64 for storage (matching Antler app format)
+  const privateKey = base64.fromByteArray(keyPair.secretKey);
 
   return {
-    privateKey: privateKeyHex,
-    publicKey: publicKeyBytes
+    privateKey,
+    publicKey: keyPair.publicKey
   };
 }
 
@@ -38,7 +63,7 @@ export async function generateKeyPair(): Promise<{
  * @param publicKey - The Ed25519 public key as Uint8Array
  * @returns The did:key formatted DID string
  */
-export function createDidFromPublicKey(publicKey: Uint8Array): string {
+function createDidFromPublicKey(publicKey: Uint8Array): string {
   // Prepend multicodec prefix to public key
   const multicodecKey = new Uint8Array(ED25519_MULTICODEC_PREFIX.length + publicKey.length);
   multicodecKey.set(ED25519_MULTICODEC_PREFIX);
@@ -53,7 +78,7 @@ export function createDidFromPublicKey(publicKey: Uint8Array): string {
 
 /**
  * Generate a complete profile with Ed25519 keypair and DID
- * @returns Object containing privateKey (hex) and did (string)
+ * @returns Object containing privateKey (base64) and did (string)
  */
 export async function generateProfileKeys(): Promise<{
   privateKey: string;
@@ -67,4 +92,3 @@ export async function generateProfileKeys(): Promise<{
     did
   };
 }
-

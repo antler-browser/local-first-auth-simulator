@@ -28,6 +28,49 @@ npx serve dist -p 8000
 
 No automated test suite exists - relies on manual testing via test.html and console inspection.
 
+### Multi-User Testing
+
+ A major usecase for an IRL Browser mini app is multiple people physically present at the same time, each with their own profile. The simulator supports testing with multiple users simultaneously via URL parameters and preset profiles.
+
+**Quick Start:**
+1. Add simulator to your mini-app (works automatically with no config)
+2. Open your mini-app in browser - loads with Paul Morphy (default profile)
+3. Open Debug UI panel (auto-visible or press Ctrl+Shift+I)
+4. Click "Open as Alice Anderson" or any other profile button
+5. New tab opens with Alice's profile
+6. Repeat for Bob, Charlie, etc. to simulate multiple users
+
+**How it Works:**
+- Simulator auto-detects `?irlProfile=<id>` URL parameter
+- If no parameter, defaults to Paul Morphy
+- Each browser tab = independent user session with their own profile
+
+**Available Preset Profiles:**
+- Paul Morphy (`paul`)
+- Alice Anderson (`alice`)
+- Bob Batterson (`bob`)
+- Charlie Kim (`charlie`)
+- Divya Patel (`divya`)
+- Eva Johnson (`eva`)
+
+**Example URLs:**
+```
+http://localhost:3000                  → Paul Morphy (default)
+http://localhost:3000?irlProfile=alice → Alice Anderson
+http://localhost:3000?irlProfile=bob   → Bob Batterson
+```
+
+**URL Parameter Handling:**
+- Preserves existing query parameters
+- Preserves URL hash/fragments (for SPA routing)
+- Example: `app.com?foo=bar#/page` → `app.com?foo=bar&irlProfile=alice#/page`
+
+**Notes:**
+- Permissions are global (not per-user) for simplicity
+- Each profile has pre-generated Ed25519 keys and DID
+- Profile colors help distinguish tabs visually
+- All profiles exported from `irl-browser-simulator` package
+
 ### Publishing
 - `npm run prepublishOnly` - Automatically runs build before publishing to npm
 
@@ -67,15 +110,17 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 - Network delay simulation (default 50ms)
 
 **src/jwt.ts** - JWT operations
-- `createSignedJwt()` - Creates and signs JWTs using Ed25519
-- `decodeJwt()` - Decodes JWT payload
-- Uses `@noble/ed25519` for cryptographic signing
+- `createJWT()` - Creates and signs JWTs using Ed25519
+- `decodeJWT()` - Decodes JWT payload (without verification)
+- `verifyJWT()` - Verifies JWT signature using Ed25519 public key
+- Uses `@stablelib/ed25519` for cryptographic signing (matching Antler IRL Browser app)
+- Uses `base64-js` for base64url encoding
 - Supports both browser and Node.js environments
 
 **src/keyUtils.ts** - DID and key management
 - `generateProfileKeys()` - Creates Ed25519 keypair and DID
-- `publicKeyToDid()` - Converts public key to `did:key` format
 - Implements W3C DID standard with multicodec prefix (0xed01)
+- Generates 64-byte secret keys (32-byte seed + 32-byte public key)
 
 **src/ui.ts** - Debug UI panel
 - Floating panel (bottom-right, collapsible)
@@ -110,12 +155,10 @@ Uses `did:key` method with Ed25519 keys:
 #### 3. Profile System
 Profiles contain:
 - `did` - Decentralized identifier
-- `name`, `avatarUrl`, `socials` - User data
-- `privateKey` - Ed25519 private key (Uint8Array)
+- `name`, `avatar`, `socials` - User data
+- `privateKey` - Ed25519 secret key (64 bytes: 32-byte seed + 32-byte public key), base64-encoded
 
-**Security:** Profile files (`.profile.json`) are gitignored because they contain private keys.
-
-Default profile is "Paul Morphy" (chess player) - see src/simulator.ts for structure.
+Default profile is "Paul Morphy". See src/profiles.ts for all preset profiles.
 
 #### 4. Permission Model
 Simulates IRL Browser permission system:
@@ -159,10 +202,9 @@ Listen with: `window.addEventListener('message', ...)`
 ## Important Conventions
 
 ### Security
-- **Never commit `.profile.json` files** - they contain private keys
 - **Development only** - simulator is not secure for production use
-- **JWT signing** - Uses proper Ed25519 compatible with real IRL Browser
-- **Private key format** - Stored as Uint8Array, converted to/from hex for JSON
+- **JWT signing** - Uses @stablelib/ed25519
+- **Private key format** - 64-byte secret keys stored as base64 strings (32-byte seed + 32-byte public key)
 
 ### Code Style
 - **Zero configuration** - Works out-of-the-box with sensible defaults
@@ -180,13 +222,14 @@ Listen with: `window.addEventListener('message', ...)`
 ## Key Dependencies
 
 **Production:**
-- `@noble/ed25519` - Ed25519 cryptographic signing
-- `@noble/hashes` - SHA-512 hashing for signatures
+- `@stablelib/ed25519` - Ed25519 cryptographic signing (matches Antler IRL Browser app)
+- `base64-js` - Base64/base64url encoding
 - `base58-universal` - Base58 encoding for DIDs
 
 **Development:**
 - `typescript` - Type checking
 - `tsup` - TypeScript bundler (uses esbuild)
+- `@types/base64-js` - TypeScript type definitions for base64-js
 
 ## Reference Documentation
 
@@ -205,22 +248,13 @@ Listen with: `window.addEventListener('message', ...)`
 4. Update Debug UI button in src/ui.ts if applicable
 5. Test via test.html
 
-### Creating Custom Profiles
-
-Use the `generateProfileKeys()` utility:
-```typescript
-import { generateProfileKeys } from 'irl-browser-simulator';
-const profile = await generateProfileKeys('Your Name');
-// Save to .profile.json (gitignored)
-```
-
 ### Modifying JWT Payload Structure
 
-All JWT creation happens in `createSignedJwt()` (src/jwt.ts). Standard claims:
+All JWT creation happens in `createJWT()` (src/jwt.ts). Standard claims:
 - `iss` (issuer) - Profile's DID
 - `aud` (audience) - Origin URL
 - `iat` (issued at) - Current timestamp
 - `exp` (expiration) - iat + expiresInSeconds
-- `type` - Operation type (e.g., 'profile', 'permission')
+- `type` - Operation type (e.g., 'irl:profile:details', 'irl:avatar')
 
-Add custom claims in the data parameter.
+Add custom claims in the data parameter nested under the `data` field.

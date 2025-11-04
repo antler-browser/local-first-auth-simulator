@@ -1,4 +1,18 @@
 import type { Simulator } from './simulator';
+import { PRESET_PROFILES } from './profiles';
+import { buildUrlWithProfile } from './urlUtils';
+
+/**
+ * Profile colors for visual distinction in multi-window testing
+ */
+const PROFILE_COLORS: Record<string, string> = {
+  'paul': '#3498db',
+  'alice': '#e74c3c',
+  'bob': '#2ecc71',
+  'charlie': '#f49ac1',
+  'divya': '#f49c53',
+  'eva': '#9c27b0',
+};
 
 /**
  * Create the floating debug UI panel
@@ -21,6 +35,10 @@ function createDebugUIImpl(simulator: Simulator): void {
 
   const profile = simulator.getCurrentProfile();
   const truncatedDID = profile.did.length > 30 ? profile.did.substring(0, 30) + '...' : profile.did;
+  const profileColor = PROFILE_COLORS[profile.profileId] || '#3498db';
+
+  // Get other profiles (excluding current one) for switcher buttons
+  const otherProfiles = PRESET_PROFILES.filter(p => p.profileId !== profile.profileId);
 
   container.innerHTML = `
     <style>
@@ -100,6 +118,31 @@ function createDebugUIImpl(simulator: Simulator): void {
       .irl-sim-btn:last-child {
         margin-bottom: 0;
       }
+      .irl-sim-btn-profile {
+        background: #444;
+        color: #fff;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .irl-sim-btn-profile:hover {
+        background: #555;
+      }
+      .irl-sim-btn-profile:active {
+        background: #666;
+      }
+      .irl-sim-profile-badge {
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
       .irl-sim-profile {
         font-size: 12px;
         color: #888;
@@ -107,6 +150,10 @@ function createDebugUIImpl(simulator: Simulator): void {
         background: #2d2d2d;
         border-radius: 4px;
         margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border-left: 3px solid ${profileColor};
       }
       .irl-sim-profile strong {
         color: #fff;
@@ -168,9 +215,26 @@ function createDebugUIImpl(simulator: Simulator): void {
         <div class="irl-sim-section">
           <div class="irl-sim-label">Current Profile</div>
           <div class="irl-sim-profile">
-            <strong>${profile.name}</strong><br>
-            <span>${truncatedDID}</span>
+            <div class="irl-sim-profile-badge" style="background-color: ${profileColor}">
+              ${profile.name.charAt(0)}
+            </div>
+            <div>
+              <strong>${profile.name}</strong><br>
+              <span>${truncatedDID}</span>
+            </div>
           </div>
+        </div>
+        <div class="irl-sim-section">
+          <div class="irl-sim-label">Open as Different User</div>
+          ${otherProfiles.map(p => {
+            const color = PROFILE_COLORS[p.profileId] || '#666';
+            return `<button class="irl-sim-btn irl-sim-btn-profile" data-profile-id="${p.profileId}">
+              <div class="irl-sim-profile-badge" style="background-color: ${color}">
+                ${p.name.charAt(0)}
+              </div>
+              <span>${p.name}</span>
+            </button>`;
+          }).join('\n          ')}
         </div>
         <div class="irl-sim-section">
           <div class="irl-sim-label">API Methods</div>
@@ -265,6 +329,18 @@ function createDebugUIImpl(simulator: Simulator): void {
       window.irlBrowser?.close();
     });
   }
+
+  // Profile switcher buttons
+  const profileButtons = document.querySelectorAll('.irl-sim-btn-profile');
+  profileButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const profileId = button.getAttribute('data-profile-id');
+      if (profileId) {
+        const newUrl = buildUrlWithProfile(profileId as any); // Runtime check ensures valid profileId
+        window.open(newUrl, '_blank');
+      }
+    });
+  });
 
   // Keyboard shortcut: Ctrl+Shift+I to toggle between collapsed and expanded
   document.addEventListener('keydown', (e) => {

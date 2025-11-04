@@ -7,9 +7,6 @@ dist/
 dist-bundle/
 *.tsbuildinfo
 
-# Profile files (NEVER commit these - they contain private keys!)
-*.profile.json
-
 # IDE
 .vscode/
 .idea/
