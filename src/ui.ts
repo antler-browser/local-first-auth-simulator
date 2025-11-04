@@ -289,10 +289,10 @@ function createDebugUIImpl(simulator: Simulator): void {
         }
       }
     </style>
-    <button class="irl-sim-collapsed-icon hidden" id="irl-sim-collapsed-icon" aria-label="Open IRL Browser Debugger" aria-expanded="false">
+    <button class="irl-sim-collapsed-icon" id="irl-sim-collapsed-icon" aria-label="Open IRL Browser Debugger" aria-expanded="false">
       <div class="irl-sim-icon-emoji">🐛</div>
     </button>
-    <div class="irl-sim-panel" id="irl-sim-panel" role="region" aria-label="IRL Browser Debugger">
+    <div class="irl-sim-panel hidden" id="irl-sim-panel" role="region" aria-label="IRL Browser Debugger">
       <div class="irl-sim-header">
         <span>IRL Browser Debugger</span>
         <button class="irl-sim-close" id="irl-sim-close-btn" aria-label="Close debugger">&times;</button>
@@ -338,9 +338,12 @@ function createDebugUIImpl(simulator: Simulator): void {
 
   // Helper function to show visual feedback on button click
   const showButtonFeedback = (button: HTMLElement) => {
+    const originalText = button.textContent || '';
     button.classList.add('clicked');
+    button.textContent = '✅ ' + originalText;
     setTimeout(() => {
       button.classList.remove('clicked');
+      button.textContent = originalText;
     }, 400);
   };
 
