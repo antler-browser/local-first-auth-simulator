@@ -1,6 +1,6 @@
 {
   "name": "irl-browser-simulator",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Development simulator for IRL Browser mini-apps. Injects window.irlBrowser into a regular browser to help you simulate IRL Browsers on development environments.",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
