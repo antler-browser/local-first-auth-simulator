@@ -76,8 +76,34 @@ export interface ResolvedSimulatorConfig {
  * Profile Structure
  */
 
-export interface Social {
-  platform: string;
+export enum SocialPlatform {
+  INSTAGRAM = 'instagram',
+  YOUTUBE = 'youtube',
+  TIKTOK = 'tiktok',
+  X = 'x',
+  BLUESKY = 'bluesky',
+  FACEBOOK = 'facebook',
+  LINKEDIN = 'linkedin',
+  GITHUB = 'github',
+  TWITCH = 'twitch',
+  SNAPCHAT = 'snapchat',
+  REDDIT = 'reddit',
+  DISCORD = 'discord',
+  TELEGRAM = 'telegram',
+  PINTEREST = 'pinterest',
+  TUMBLR = 'tumblr',
+  SPOTIFY = 'spotify',
+  SOUNDCLOUD = 'soundcloud',
+  BANDCAMP = 'bandcamp',
+  PATREON = 'patreon',
+  KO_FI = 'ko_fi',
+  WEBSITE = 'website',
+  EMAIL = 'email',
+  MASTODON = 'mastodon',
+}
+
+export interface SocialLink {
+  platform: SocialPlatform;
   handle: string;
 }
 
@@ -86,7 +112,7 @@ export interface Profile {
   did: string;
   name: string;
   avatar?: string;  // Base64 data URI
-  socials?: Social[];
+  socials?: SocialLink[];
   privateKey: string;  // ED25519 secret key in base64 format (64 bytes: seed + public key)
 }
 
@@ -112,7 +138,7 @@ export interface ProfileDetailsPayload extends BaseJWTPayload {
   data: {
     did: string;
     name: string;
-    socials?: Social[];
+    socials?: SocialLink[];
   };
 }
 
@@ -129,7 +155,7 @@ export interface ProfileDisconnectedPayload extends BaseJWTPayload {
   data: {
     did: string;
     name: string;
-    socials?: Social[];
+    socials?: SocialLink[];
   };
 }
 

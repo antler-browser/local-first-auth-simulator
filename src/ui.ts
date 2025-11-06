@@ -1,4 +1,5 @@
 import type { Simulator } from './simulator';
+import type { Profile } from './types';
 import { PRESET_PROFILES } from './profiles';
 import { buildUrlWithProfile } from './urlUtils';
 
@@ -38,7 +39,7 @@ function createDebugUIImpl(simulator: Simulator): void {
   const profileColor = PROFILE_COLORS[profile.profileId] || '#3498db';
 
   // Get other profiles (excluding current one) for switcher buttons
-  const otherProfiles = PRESET_PROFILES.filter(p => p.profileId !== profile.profileId);
+  const otherProfiles: Profile[] = PRESET_PROFILES.filter(p => p.profileId !== profile.profileId);
 
   container.innerHTML = `
     <style>

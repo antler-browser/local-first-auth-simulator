@@ -15,13 +15,14 @@ export type {
   IRLBrowser,
   BrowserDetails,
   Profile,
-  Social,
+  SocialLink,
   JWTPayload,
   ProfileDetailsPayload,
   AvatarPayload,
   ProfileDisconnectedPayload,
   ErrorPayload
 } from './types';
+export { SocialPlatform } from './types';
 
 import { Simulator } from './simulator';
 import type { SimulatorConfig } from './types';
