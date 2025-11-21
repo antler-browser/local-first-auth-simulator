@@ -22,8 +22,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Manual testing workflow:
 ```bash
 npm run build:bundle
-npx serve dist -p 8000
-# Open http://localhost:8000/test.html in browser
+npx serve . -p 8000
+# Open http://localhost:8000/test in browser
 ```
 
 No automated test suite exists - relies on manual testing via test.html and console inspection.
@@ -240,7 +240,7 @@ Listen with: `window.addEventListener('message', ...)`
 
 ## Reference Documentation
 
-- **docs/irl-browser-standard.md** - Complete IRL Browser API specification
+- **docs/irl-browser-specification.md** - Complete IRL Browser API specification
   - Defines lifecycle, JWT structure, API methods
   - Security best practices and authentication patterns
   - License: CC BY-SA 4.0

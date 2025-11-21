@@ -5,7 +5,7 @@
 export interface BrowserDetails {
   name: string;                // e.g., "IRL Browser Simulator"
   version: string;             // e.g., "1.0.0"
-  platform: "ios" | "android";
+  platform: "ios" | "android" | "browser";
   supportedPermissions: string[];  // e.g., ["profile"]
 }
 
@@ -40,12 +40,7 @@ export interface SimulatorConfig {
   };
 
   // Browser details returned by getBrowserDetails()
-  browserDetails?: {
-    name?: string;  // defaults to "IRL Browser Simulator"
-    version?: string;  // defaults to "1.0.0"
-    platform?: 'ios' | 'android';  // defaults to "ios"
-    supportedPermissions?: string[];  // defaults to ["profile"]
-  };
+  browserDetails?: BrowserDetails
 
   // Network simulation
   networkDelayMs?: number;  // Simulated network delay in milliseconds (defaults to 50)
@@ -62,12 +57,7 @@ export interface ResolvedSimulatorConfig {
     audience: string;
     expirationOffsetSeconds: number;
   };
-  browserDetails: {
-    name: string;
-    version: string;
-    platform: 'ios' | 'android';
-    supportedPermissions: string[];
-  };
+  browserDetails: BrowserDetails;
   networkDelayMs: number;
   showDebugUI: boolean;
 }

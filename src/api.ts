@@ -68,7 +68,7 @@ export class MockIrlBrowser implements IRLBrowser {
     return {
       name: this.simulator.config.browserDetails?.name || 'IRL Browser Simulator',
       version: this.simulator.config.browserDetails?.version || '1.0.0',
-      platform: this.simulator.config.browserDetails?.platform || 'ios',
+      platform: this.simulator.config.browserDetails?.platform as 'ios' | 'android' | 'browser',
       supportedPermissions: this.simulator.config.browserDetails?.supportedPermissions || ['profile']
     };
   }

@@ -71,9 +71,9 @@ That's it! The simulator will:
 - Test multi-user scenarios across tabs
 - Be ready for your mini-app to use
 
-## IRL Browser Standard
+## IRL Browser Specification
 
-See `docs/irl-browser-standard.md` for the IRL Browser Standard, which defines how an IRL Browser communicates and what is being mocked in this package.
+See `docs/irl-browser-specification.md` for the IRL Browser Specification, which defines how an IRL Browser communicates and what is being mocked in this package.
 
 ## Configuration Options
 
@@ -89,7 +89,7 @@ interface SimulatorConfig {
   browserDetails?: {
     name?: string;  // defaults to "IRL Browser Simulator"
     version?: string;  // defaults to "1.0.0"
-    platform?: 'ios' | 'android';  // defaults to "ios"
+    platform?: 'ios' | 'android' | 'browser';  // defaults to "ios"
     supportedPermissions?: string[];  // defaults to ["profile"]
   };
 
