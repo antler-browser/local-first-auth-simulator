@@ -1,23 +1,23 @@
 /**
- * IRL Browser API Types
+ * Local First Auth API Types
  */
 
-export interface BrowserDetails {
-  name: string;                // e.g., "IRL Browser Simulator"
+export interface AppDetails {
+  name: string;                // e.g., "Local First Auth Simulator"
   version: string;             // e.g., "1.0.0"
   platform: "ios" | "android" | "browser";
   supportedPermissions: string[];  // e.g., ["profile"]
 }
 
-export interface IRLBrowser {
+export interface LocalFirstAuth {
   // Get profile details as signed JWT string
   getProfileDetails(): Promise<string>;
 
   // Get avatar as signed JWT string (or null if no avatar)
   getAvatar(): Promise<string | null>;
 
-  // Get browser information (SYNC - not async!)
-  getBrowserDetails(): BrowserDetails;
+  // Get app information (SYNC - not async!)
+  getAppDetails(): AppDetails;
 
   // Request additional permissions
   requestPermission(permission: string): Promise<boolean>;
@@ -39,8 +39,8 @@ export interface SimulatorConfig {
     expirationOffsetSeconds?: number;  // JWT expiration offset in seconds from now (defaults to 120)
   };
 
-  // Browser details returned by getBrowserDetails()
-  browserDetails?: BrowserDetails
+  // App details returned by getAppDetails()
+  appDetails?: AppDetails
 
   // Network simulation
   networkDelayMs?: number;  // Simulated network delay in milliseconds (defaults to 50)
@@ -57,7 +57,7 @@ export interface ResolvedSimulatorConfig {
     audience: string;
     expirationOffsetSeconds: number;
   };
-  browserDetails: BrowserDetails;
+  appDetails: AppDetails;
   networkDelayMs: number;
   showDebugUI: boolean;
 }
@@ -124,7 +124,7 @@ export interface BaseJWTPayload {
 }
 
 export interface ProfileDetailsPayload extends BaseJWTPayload {
-  type: "irl:profile:details";
+  type: "localFirstAuth:profile:details";
   data: {
     did: string;
     name: string;
@@ -133,7 +133,7 @@ export interface ProfileDetailsPayload extends BaseJWTPayload {
 }
 
 export interface AvatarPayload extends BaseJWTPayload {
-  type: "irl:avatar";
+  type: "localFirstAuth:avatar";
   data: {
     did: string;
     avatar: string;
@@ -141,7 +141,7 @@ export interface AvatarPayload extends BaseJWTPayload {
 }
 
 export interface ProfileDisconnectedPayload extends BaseJWTPayload {
-  type: "irl:profile:disconnected";
+  type: "localFirstAuth:profile:disconnected";
   data: {
     did: string;
     name: string;
@@ -150,7 +150,7 @@ export interface ProfileDisconnectedPayload extends BaseJWTPayload {
 }
 
 export interface ErrorPayload extends BaseJWTPayload {
-  type: "irl:error";
+  type: "localFirstAuth:error";
   data: {
     code: string;
     message: string;
@@ -169,6 +169,6 @@ export type JWTPayload =
 
 declare global {
   interface Window {
-    irlBrowser?: IRLBrowser;
+    localFirstAuth?: LocalFirstAuth;
   }
 }

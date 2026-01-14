@@ -32,7 +32,7 @@ function createDebugUIImpl(simulator: Simulator): void {
   let isExpanded = false;
 
   const container = document.createElement('div');
-  container.id = 'irl-browser-simulator-debug';
+  container.id = 'local-first-auth-simulator-debug';
 
   const profile = simulator.getCurrentProfile();
   const truncatedDID = profile.did.length > 30 ? profile.did.substring(0, 30) + '...' : profile.did;
@@ -43,7 +43,7 @@ function createDebugUIImpl(simulator: Simulator): void {
 
   container.innerHTML = `
     <style>
-      #irl-browser-simulator-debug {
+      #local-first-auth-simulator-debug {
         position: fixed;
         bottom: 10px;
         left: 10px;
@@ -52,14 +52,14 @@ function createDebugUIImpl(simulator: Simulator): void {
         font-size: 13px;
         max-width: 340px;
       }
-      .irl-sim-panel {
+      .lfa-sim-panel {
         background: #1e1e1e;
         color: #fff;
         border-radius: 10px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05);
         overflow: hidden;
       }
-      .irl-sim-header {
+      .lfa-sim-header {
         background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%);
         padding: 14px 18px;
         display: flex;
@@ -68,7 +68,7 @@ function createDebugUIImpl(simulator: Simulator): void {
         font-weight: 600;
         border-bottom: 1px solid rgba(255,255,255,0.06);
       }
-      .irl-sim-close {
+      .lfa-sim-close {
         background: none;
         border: none;
         color: #999;
@@ -84,24 +84,24 @@ function createDebugUIImpl(simulator: Simulator): void {
         align-items: center;
         justify-content: center;
       }
-      .irl-sim-close:hover {
+      .lfa-sim-close:hover {
         color: #fff;
         background: rgba(255,255,255,0.08);
       }
-      .irl-sim-close:focus-visible {
+      .lfa-sim-close:focus-visible {
         outline: 2px solid #0066cc;
         outline-offset: 2px;
       }
-      .irl-sim-body {
+      .lfa-sim-body {
         padding: 18px;
       }
-      .irl-sim-section {
+      .lfa-sim-section {
         margin-bottom: 20px;
       }
-      .irl-sim-section:last-child {
+      .lfa-sim-section:last-child {
         margin-bottom: 0;
       }
-      .irl-sim-label {
+      .lfa-sim-label {
         color: #aaa;
         font-size: 11px;
         text-transform: uppercase;
@@ -109,7 +109,7 @@ function createDebugUIImpl(simulator: Simulator): void {
         margin-bottom: 10px;
         font-weight: 600;
       }
-      .irl-sim-btn {
+      .lfa-sim-btn {
         background: #0066cc;
         color: #fff;
         border: none;
@@ -127,26 +127,26 @@ function createDebugUIImpl(simulator: Simulator): void {
         align-items: center;
         justify-content: center;
       }
-      .irl-sim-btn:hover {
+      .lfa-sim-btn:hover {
         background: #0052a3;
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0,102,204,0.3);
       }
-      .irl-sim-btn:active {
+      .lfa-sim-btn:active {
         background: #003d7a;
         transform: translateY(0);
       }
-      .irl-sim-btn:focus-visible {
+      .lfa-sim-btn:focus-visible {
         outline: 2px solid #0066cc;
         outline-offset: 2px;
       }
-      .irl-sim-btn.clicked {
+      .lfa-sim-btn.clicked {
         background: #00aa00;
       }
-      .irl-sim-btn:last-child {
+      .lfa-sim-btn:last-child {
         margin-bottom: 0;
       }
-      .irl-sim-btn-profile {
+      .lfa-sim-btn-profile {
         background: #333;
         color: #fff;
         text-align: left;
@@ -154,15 +154,15 @@ function createDebugUIImpl(simulator: Simulator): void {
         gap: 12px;
         border: 1px solid rgba(255,255,255,0.08);
       }
-      .irl-sim-btn-profile:hover {
+      .lfa-sim-btn-profile:hover {
         background: #3d3d3d;
         border-color: rgba(255,255,255,0.12);
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       }
-      .irl-sim-btn-profile:active {
+      .lfa-sim-btn-profile:active {
         background: #424242;
       }
-      .irl-sim-profile-avatar {
+      .lfa-sim-profile-avatar {
         width: 32px;
         height: 32px;
         border-radius: 50%;
@@ -170,7 +170,7 @@ function createDebugUIImpl(simulator: Simulator): void {
         object-fit: cover;
         border: 2px solid rgba(255,255,255,0.15);
       }
-      .irl-sim-profile-avatar-large {
+      .lfa-sim-profile-avatar-large {
         width: 44px;
         height: 44px;
         border-radius: 50%;
@@ -179,7 +179,7 @@ function createDebugUIImpl(simulator: Simulator): void {
         border: 3px solid ${profileColor};
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       }
-      .irl-sim-profile-badge {
+      .lfa-sim-profile-badge {
         width: 32px;
         height: 32px;
         border-radius: 50%;
@@ -191,7 +191,7 @@ function createDebugUIImpl(simulator: Simulator): void {
         flex-shrink: 0;
         border: 2px solid rgba(255,255,255,0.15);
       }
-      .irl-sim-profile-badge-large {
+      .lfa-sim-profile-badge-large {
         width: 44px;
         height: 44px;
         border-radius: 50%;
@@ -204,7 +204,7 @@ function createDebugUIImpl(simulator: Simulator): void {
         border: 3px solid ${profileColor};
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       }
-      .irl-sim-profile {
+      .lfa-sim-profile {
         font-size: 13px;
         color: #bbb;
         padding: 12px 14px;
@@ -216,24 +216,24 @@ function createDebugUIImpl(simulator: Simulator): void {
         gap: 12px;
         border: 1px solid rgba(255,255,255,0.06);
       }
-      .irl-sim-profile strong {
+      .lfa-sim-profile strong {
         color: #fff;
         font-size: 14px;
         display: block;
         margin-bottom: 2px;
       }
-      .irl-sim-profile-details {
+      .lfa-sim-profile-details {
         flex: 1;
         min-width: 0;
       }
-      .irl-sim-profile-did {
+      .lfa-sim-profile-did {
         font-size: 11px;
         color: #888;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
       }
-      .irl-sim-collapsed-icon {
+      .lfa-sim-collapsed-icon {
         width: 56px;
         height: 56px;
         background: #1e1e1e;
@@ -248,88 +248,88 @@ function createDebugUIImpl(simulator: Simulator): void {
         border: none;
         padding: 0;
       }
-      .irl-sim-collapsed-icon:hover {
+      .lfa-sim-collapsed-icon:hover {
         background: #2d2d2d;
         transform: scale(1.08);
         box-shadow: 0 6px 20px rgba(0,0,0,0.5);
       }
-      .irl-sim-collapsed-icon:focus-visible {
+      .lfa-sim-collapsed-icon:focus-visible {
         outline: 2px solid #0066cc;
         outline-offset: 2px;
       }
-      .irl-sim-icon-emoji {
+      .lfa-sim-icon-emoji {
         font-size: 24px;
         line-height: 1;
       }
-      .irl-sim-panel {
+      .lfa-sim-panel {
         transition: opacity 0.2s ease, transform 0.2s ease;
       }
-      .irl-sim-panel.hidden {
+      .lfa-sim-panel.hidden {
         display: none;
       }
-      .irl-sim-collapsed-icon.hidden {
+      .lfa-sim-collapsed-icon.hidden {
         display: none;
       }
       @media (max-width: 480px) {
-        #irl-browser-simulator-debug {
+        #local-first-auth-simulator-debug {
           bottom: 5px;
           left: 5px;
           max-width: calc(100vw - 10px);
         }
-        .irl-sim-body {
+        .lfa-sim-body {
           padding: 14px;
         }
-        .irl-sim-btn,
-        .irl-sim-btn-profile {
+        .lfa-sim-btn,
+        .lfa-sim-btn-profile {
           min-height: 48px;
           font-size: 14px;
         }
-        .irl-sim-close {
+        .lfa-sim-close {
           min-width: 48px;
           min-height: 48px;
         }
       }
     </style>
-    <button class="irl-sim-collapsed-icon" id="irl-sim-collapsed-icon" aria-label="Open IRL Browser Debugger" aria-expanded="false">
-      <div class="irl-sim-icon-emoji">🐛</div>
+    <button class="lfa-sim-collapsed-icon" id="lfa-sim-collapsed-icon" aria-label="Open Local First Auth Debugger" aria-expanded="false">
+      <div class="lfa-sim-icon-emoji">🐛</div>
     </button>
-    <div class="irl-sim-panel hidden" id="irl-sim-panel" role="region" aria-label="IRL Browser Debugger">
-      <div class="irl-sim-header">
-        <span>IRL Browser Debugger</span>
-        <button class="irl-sim-close" id="irl-sim-close-btn" aria-label="Close debugger">&times;</button>
+    <div class="lfa-sim-panel hidden" id="lfa-sim-panel" role="region" aria-label="Local First Auth Debugger">
+      <div class="lfa-sim-header">
+        <span>Local First Auth Debugger</span>
+        <button class="lfa-sim-close" id="lfa-sim-close-btn" aria-label="Close debugger">&times;</button>
       </div>
-      <div class="irl-sim-body">
-        <div class="irl-sim-section">
-          <div class="irl-sim-label">Current Profile</div>
-          <div class="irl-sim-profile">
+      <div class="lfa-sim-body">
+        <div class="lfa-sim-section">
+          <div class="lfa-sim-label">Current Profile</div>
+          <div class="lfa-sim-profile">
             ${profile.avatar
-              ? `<img src="${profile.avatar}" alt="${profile.name}" class="irl-sim-profile-avatar-large" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                 <div class="irl-sim-profile-badge-large" style="background-color: ${profileColor}; display: none;">${profile.name.charAt(0)}</div>`
-              : `<div class="irl-sim-profile-badge-large" style="background-color: ${profileColor}">${profile.name.charAt(0)}</div>`
+              ? `<img src="${profile.avatar}" alt="${profile.name}" class="lfa-sim-profile-avatar-large" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                 <div class="lfa-sim-profile-badge-large" style="background-color: ${profileColor}; display: none;">${profile.name.charAt(0)}</div>`
+              : `<div class="lfa-sim-profile-badge-large" style="background-color: ${profileColor}">${profile.name.charAt(0)}</div>`
             }
-            <div class="irl-sim-profile-details">
+            <div class="lfa-sim-profile-details">
               <strong>${profile.name}</strong>
-              <div class="irl-sim-profile-did" title="${profile.did}">${truncatedDID}</div>
+              <div class="lfa-sim-profile-did" title="${profile.did}">${truncatedDID}</div>
             </div>
           </div>
         </div>
-        <div class="irl-sim-section">
-          <div class="irl-sim-label">Open as Different User</div>
+        <div class="lfa-sim-section">
+          <div class="lfa-sim-label">Open as Different User</div>
           ${otherProfiles.map(p => {
             const color = PROFILE_COLORS[p.profileId] || '#666';
-            return `<button class="irl-sim-btn irl-sim-btn-profile" data-profile-id="${p.profileId}" aria-label="Open as ${p.name}">
+            return `<button class="lfa-sim-btn lfa-sim-btn-profile" data-profile-id="${p.profileId}" aria-label="Open as ${p.name}">
               ${p.avatar
-                ? `<img src="${p.avatar}" alt="${p.name}" class="irl-sim-profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                   <div class="irl-sim-profile-badge" style="background-color: ${color}; display: none;">${p.name.charAt(0)}</div>`
-                : `<div class="irl-sim-profile-badge" style="background-color: ${color}">${p.name.charAt(0)}</div>`
+                ? `<img src="${p.avatar}" alt="${p.name}" class="lfa-sim-profile-avatar" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                   <div class="lfa-sim-profile-badge" style="background-color: ${color}; display: none;">${p.name.charAt(0)}</div>`
+                : `<div class="lfa-sim-profile-badge" style="background-color: ${color}">${p.name.charAt(0)}</div>`
               }
               <span>${p.name}</span>
             </button>`;
           }).join('\n          ')}
         </div>
-        <div class="irl-sim-section">
-          <div class="irl-sim-label">Events</div>
-          <button class="irl-sim-btn" id="irl-sim-disconnect" aria-label="Trigger profile disconnected event">Trigger Profile Disconnected</button>
+        <div class="lfa-sim-section">
+          <div class="lfa-sim-label">Events</div>
+          <button class="lfa-sim-btn" id="lfa-sim-disconnect" aria-label="Trigger profile disconnected event">Trigger Profile Disconnected</button>
         </div>
       </div>
     </div>
@@ -351,8 +351,8 @@ function createDebugUIImpl(simulator: Simulator): void {
   // Helper function to toggle expanded state
   const toggleExpanded = () => {
     isExpanded = !isExpanded;
-    const panel = document.getElementById('irl-sim-panel');
-    const icon = document.getElementById('irl-sim-collapsed-icon') as HTMLButtonElement;
+    const panel = document.getElementById('lfa-sim-panel');
+    const icon = document.getElementById('lfa-sim-collapsed-icon') as HTMLButtonElement;
 
     if (isExpanded) {
       icon?.classList.add('hidden');
@@ -366,17 +366,17 @@ function createDebugUIImpl(simulator: Simulator): void {
   };
 
   // Attach event listeners
-  const collapsedIcon = document.getElementById('irl-sim-collapsed-icon');
+  const collapsedIcon = document.getElementById('lfa-sim-collapsed-icon');
   if (collapsedIcon) {
     collapsedIcon.addEventListener('click', toggleExpanded);
   }
 
-  const closeBtn = document.getElementById('irl-sim-close-btn');
+  const closeBtn = document.getElementById('lfa-sim-close-btn');
   if (closeBtn) {
     closeBtn.addEventListener('click', toggleExpanded);
   }
 
-  const disconnectBtn = document.getElementById('irl-sim-disconnect');
+  const disconnectBtn = document.getElementById('lfa-sim-disconnect');
   if (disconnectBtn) {
     disconnectBtn.addEventListener('click', () => {
       showButtonFeedback(disconnectBtn);
@@ -385,7 +385,7 @@ function createDebugUIImpl(simulator: Simulator): void {
   }
 
   // Profile switcher buttons
-  const profileButtons = document.querySelectorAll('.irl-sim-btn-profile');
+  const profileButtons = document.querySelectorAll('.lfa-sim-btn-profile');
   profileButtons.forEach(button => {
     button.addEventListener('click', () => {
       const profileId = button.getAttribute('data-profile-id');

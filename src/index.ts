@@ -1,10 +1,10 @@
 /**
- * IRL Browser Simulator
- * Development tool for testing IRL Browser mini-apps
+ * Local First Auth Simulator
+ * Development tool for testing Local First Auth mini-apps
  */
 
 export { Simulator } from './simulator';
-export { MockIrlBrowser } from './api';
+export { MockLocalFirstAuth } from './api';
 export { createJWT, decodeJWT, verifyJWT } from './jwt';
 export { generateProfileKeys } from './keyUtils';
 export { PRESET_PROFILES, getProfileById, getProfileIds, getDefaultProfile } from './profiles';
@@ -12,8 +12,8 @@ export { buildUrlWithProfile, getProfileIdFromUrl, hasProfileInUrl } from './url
 export type { ProfileId } from './profiles';
 export type {
   SimulatorConfig,
-  IRLBrowser,
-  BrowserDetails,
+  LocalFirstAuth,
+  AppDetails,
   Profile,
   SocialLink,
   JWTPayload,
@@ -31,9 +31,9 @@ import { getProfileById } from './profiles';
 
 /**
  * Quick start - zero config
- * Enable the IRL Browser simulator with default settings
+ * Enable the Local First Auth simulator with default settings
  *
- * Automatically detects profile from URL parameter (?irlProfile=alice)
+ * Automatically detects profile from URL parameter (?test_profile=alice)
  * Falls back to Paul (default) if no URL parameter is present
  *
  * @param config - Optional configuration to customize the simulator
@@ -41,33 +41,33 @@ import { getProfileById } from './profiles';
  *
  * @example
  * ```typescript
- * import { enableIrlBrowserSimulator } from 'irl-browser-simulator';
+ * import { enableLocalFirstAuthSimulator } from 'local-first-auth-simulator';
  *
  * if (process.env.NODE_ENV === 'development') {
- *   enableIrlBrowserSimulator();
+ *   enableLocalFirstAuthSimulator();
  * }
  * ```
  *
  * @example Multi-user testing
  * ```typescript
- * // Open http://localhost:3000?irlProfile=alice in one tab
- * // Open http://localhost:3000?irlProfile=bob in another tab
+ * // Open http://localhost:3000?test_profile=alice in one tab
+ * // Open http://localhost:3000?test_profile=bob in another tab
  * // Each tab will simulate a different user
  * ```
  */
-export function enableIrlBrowserSimulator(config?: Partial<SimulatorConfig>): Simulator {
+export function enableLocalFirstAuthSimulator(config?: Partial<SimulatorConfig>): Simulator {
   // URL parameter takes precedence over config for multi-user testing
   const profileId = getProfileIdFromUrl();
   if (profileId) {
     const profile = getProfileById(profileId);
     if (profile) {
       config = { ...config, profile };
-      console.log(`[IRL Browser Simulator] Using profile from URL: ${profile.name} (${profileId})`);
+      console.log(`[Local First Auth Simulator] Using profile from URL: ${profile.name} (${profileId})`);
     } else {
-      console.warn(`[IRL Browser Simulator] Profile ID "${profileId}" not found. Using ${config?.profile ? 'config' : 'default'} profile.`);
+      console.warn(`[Local First Auth Simulator] Profile ID "${profileId}" not found. Using ${config?.profile ? 'config' : 'default'} profile.`);
     }
   } else if (config?.profile) {
-    console.log(`[IRL Browser Simulator] Using profile from config: ${config.profile.name}`);
+    console.log(`[Local First Auth Simulator] Using profile from config: ${config.profile.name}`);
   }
 
   return new Simulator(config);

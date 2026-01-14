@@ -1,6 +1,6 @@
 import type { SimulatorConfig, ResolvedSimulatorConfig, Profile, JWTPayload } from './types';
 import { createJWT } from './jwt';
-import { MockIrlBrowser } from './api';
+import { MockLocalFirstAuth } from './api';
 import { createDebugUI } from './ui';
 import { getDefaultProfile } from './profiles';
 
@@ -19,9 +19,9 @@ export class Simulator {
     // Merge with defaults
     this.config = this.mergeWithDefaults(config);
 
-    // Inject window.irlBrowser API
+    // Inject window.localFirstAuth API
     if (typeof window !== 'undefined') {
-      window.irlBrowser = new MockIrlBrowser(this);
+      window.localFirstAuth = new MockLocalFirstAuth(this);
     }
 
     // Show debug UI if enabled
@@ -30,8 +30,8 @@ export class Simulator {
     }
 
     // Log initialization
-    console.log('[IRL Browser Simulator] Started with profile:', this.profile.name);
-    console.log('[IRL Browser Simulator] DID:', this.profile.did);
+    console.log('[Local First Auth Simulator] Started with profile:', this.profile.name);
+    console.log('[Local First Auth Simulator] DID:', this.profile.did);
   }
 
   getCurrentProfile(): Profile {
@@ -50,8 +50,8 @@ export class Simulator {
 
   getManifestPermissions(): string[] {
     // For simulator, return all supported permissions
-    // Real implementation would parse irl-manifest.json
-    return this.config.browserDetails.supportedPermissions;
+    // Real implementation would parse local-first-auth-manifest.json
+    return this.config.appDetails.supportedPermissions;
   }
 
   getPermissionState(permission: string): 'granted' | 'denied' | undefined {
@@ -65,9 +65,9 @@ export class Simulator {
   async showPermissionPrompt(permission: string): Promise<boolean> {
     // Show browser confirm dialog
     return confirm(
-      `[IRL Browser Simulator]\n\n` +
+      `[Local First Auth Simulator]\n\n` +
       `Grant "${permission}" permission?\n\n` +
-      `(This would show a native permission dialog in the real IRL Browser app)`
+      `(This would show a native permission dialog in the real Local First Auth app)`
     );
   }
 
@@ -77,7 +77,7 @@ export class Simulator {
       aud: this.config.jwtDetails.audience,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + this.config.jwtDetails.expirationOffsetSeconds,
-      type: 'irl:error',
+      type: 'localFirstAuth:error',
       data: { code, message }
     };
 
@@ -92,7 +92,7 @@ export class Simulator {
       aud: this.config.jwtDetails.audience,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + this.config.jwtDetails.expirationOffsetSeconds,
-      type: 'irl:profile:disconnected',
+      type: 'localFirstAuth:profile:disconnected',
       data: {
         did: this.profile.did,
         name: this.profile.name,
@@ -111,11 +111,11 @@ export class Simulator {
         audience: config.jwtDetails?.audience || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost'),
         expirationOffsetSeconds: config.jwtDetails?.expirationOffsetSeconds ?? 120
       },
-      browserDetails: {
-        name: config.browserDetails?.name || 'IRL Browser Simulator',
-        version: config.browserDetails?.version || '1.0.0',
-        platform: config.browserDetails?.platform || 'ios',
-        supportedPermissions: config.browserDetails?.supportedPermissions || ['profile']
+      appDetails: {
+        name: config.appDetails?.name || 'Local First Auth Simulator',
+        version: config.appDetails?.version || '1.0.0',
+        platform: config.appDetails?.platform || 'ios',
+        supportedPermissions: config.appDetails?.supportedPermissions || ['profile']
       },
       networkDelayMs: config.networkDelayMs ?? 50,
       showDebugUI: config.showDebugUI ?? true
@@ -125,13 +125,13 @@ export class Simulator {
   private loadProfile(config: Partial<SimulatorConfig>): Profile {
     // If user provided a profile object, use it
     if (config.profile) {
-      console.log('[IRL Browser Simulator] Using custom profile:', config.profile.name);
+      console.log('[Local First Auth Simulator] Using custom profile:', config.profile.name);
       return config.profile;
     }
 
     // Otherwise, use the default profile from profiles.ts
     const defaultProfile = getDefaultProfile();
-    console.log('[IRL Browser Simulator] Using default profile:', defaultProfile.name);
+    console.log('[Local First Auth Simulator] Using default profile:', defaultProfile.name);
     return defaultProfile;
   }
 }

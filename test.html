@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRL Browser Simulator - Functional Test</title>
+    <title>Local First Auth Simulator - Functional Test</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -86,35 +86,35 @@
 </head>
 <body>
     <div class="info">
-        <h1>🦌 IRL Browser Simulator - Functional Test</h1>
+        <h1>Local First Auth Simulator - Functional Test</h1>
 
         <div class="warning">
-            <strong>⚠️ Before opening this file:</strong><br>
+            <strong>Before opening this file:</strong><br>
             You must build the bundled version first:
             <div class="code">npm run build:bundle</div>
         </div>
 
         <div class="success" id="status">
-            <strong>✨ Status:</strong> Initializing...
+            <strong>Status:</strong> Initializing...
         </div>
 
         <p><strong>What this page tests:</strong></p>
         <ul>
-            <li><strong>Debug UI Panel</strong> - Should appear in top-left corner</li>
+            <li><strong>Debug UI Panel</strong> - Should appear in bottom-left corner</li>
             <li><strong>Get Profile Details</strong> - Returns signed JWT with profile info</li>
             <li><strong>Get Avatar</strong> - Returns signed JWT with avatar data</li>
-            <li><strong>Get Browser Details</strong> - Returns browser metadata</li>
+            <li><strong>Get App Details</strong> - Returns app metadata</li>
             <li><strong>Profile Disconnected Event</strong> - Sends disconnect message</li>
             <li><strong>Close WebView</strong> - Triggers close and shows alert</li>
         </ul>
 
         <p><strong>How to test:</strong></p>
         <ol style="color: #555; line-height: 1.8; padding-left: 24px;">
-            <li>Look for the debug panel in the top-left corner</li>
+            <li>Look for the debug panel in the bottom-left corner</li>
             <li>Open browser console (F12) to see detailed output</li>
             <li>Click each button in the debug panel</li>
             <li>Verify console logs show expected results</li>
-            <li>Try keyboard shortcut: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>I</kbd> to toggle panel</li>
+            <li>Try keyboard shortcut: <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>D</kbd> to toggle panel</li>
         </ol>
 
         <p style="margin-top: 16px;"><strong>Console Output:</strong></p>
@@ -123,15 +123,15 @@
 
     <script type="module">
         // Import the bundled simulator
-        import { enableIrlBrowserSimulator } from './dist-bundle/index.mjs';
+        import { enableLocalFirstAuthSimulator } from './dist-bundle/index.mjs';
 
         try {
             // Initialize the simulator with debug UI enabled
-            const simulator = enableIrlBrowserSimulator({
+            const simulator = enableLocalFirstAuthSimulator({
                 showDebugUI: true,
                 networkDelayMs: 100,
-                browserDetails: {
-                    name: 'IRL Browser Simulator',
+                appDetails: {
+                    name: 'Local First Auth Simulator',
                     version: '1.0.0',
                     platform: 'ios',
                     supportedPermissions: ['profile']
@@ -140,50 +140,50 @@
 
             // Update status
             document.getElementById('status').innerHTML =
-                '<strong>✅ Status:</strong> Simulator initialized successfully! Debug panel should be visible.';
+                '<strong>Status:</strong> Simulator initialized successfully! Debug panel should be visible.';
 
             console.log('═══════════════════════════════════════');
-            console.log('🦌 IRL Browser Simulator - Functional Test');
+            console.log('Local First Auth Simulator - Functional Test');
             console.log('═══════════════════════════════════════');
-            console.log('✅ Simulator initialized successfully');
+            console.log('Simulator initialized successfully');
             console.log('');
-            console.log('📊 Current Profile:');
+            console.log('Current Profile:');
             console.log(simulator.getCurrentProfile());
             console.log('');
-            console.log('🌐 window.irlBrowser API is available:');
-            console.log(window.irlBrowser);
+            console.log('window.localFirstAuth API is available:');
+            console.log(window.localFirstAuth);
             console.log('');
-            console.log('👆 Click the buttons in the debug panel to test functionality!');
+            console.log('Click the buttons in the debug panel to test functionality!');
             console.log('   All API calls and events will be logged here.');
             console.log('═══════════════════════════════════════');
 
             // Listen for window messages (disconnect events, etc.)
             window.addEventListener('message', (event) => {
                 console.log('');
-                console.log('📨 Message Event Received:');
+                console.log('Message Event Received:');
                 console.log('   Origin:', event.origin);
                 console.log('   Data:', event.data);
 
-                if (event.data?.type === 'IRL_BROWSER_PROFILE_DISCONNECTED') {
-                    console.log('   ⚠️ Profile disconnected event detected!');
+                if (event.data?.jwt) {
+                    console.log('   JWT received in message event');
                 }
 
                 console.log('═══════════════════════════════════════');
             });
 
-            // Test window.irlBrowser methods are available
+            // Test window.localFirstAuth methods are available
             console.log('');
-            console.log('🔍 Testing API Method Availability:');
-            console.log('   - getProfileDetails:', typeof window.irlBrowser?.getProfileDetails === 'function' ? '✅' : '❌');
-            console.log('   - getAvatar:', typeof window.irlBrowser?.getAvatar === 'function' ? '✅' : '❌');
-            console.log('   - getBrowserDetails:', typeof window.irlBrowser?.getBrowserDetails === 'function' ? '✅' : '❌');
-            console.log('   - requestPermission:', typeof window.irlBrowser?.requestPermission === 'function' ? '✅' : '❌');
-            console.log('   - close:', typeof window.irlBrowser?.close === 'function' ? '✅' : '❌');
+            console.log('Testing API Method Availability:');
+            console.log('   - getProfileDetails:', typeof window.localFirstAuth?.getProfileDetails === 'function' ? 'OK' : 'MISSING');
+            console.log('   - getAvatar:', typeof window.localFirstAuth?.getAvatar === 'function' ? 'OK' : 'MISSING');
+            console.log('   - getAppDetails:', typeof window.localFirstAuth?.getAppDetails === 'function' ? 'OK' : 'MISSING');
+            console.log('   - requestPermission:', typeof window.localFirstAuth?.requestPermission === 'function' ? 'OK' : 'MISSING');
+            console.log('   - close:', typeof window.localFirstAuth?.close === 'function' ? 'OK' : 'MISSING');
 
         } catch (error) {
-            console.error('❌ Failed to initialize simulator:', error);
+            console.error('Failed to initialize simulator:', error);
             document.getElementById('status').innerHTML =
-                '<strong>❌ Error:</strong> Failed to initialize. Check console for details.';
+                '<strong>Error:</strong> Failed to initialize. Check console for details.';
             document.getElementById('status').style.background = '#f8d7da';
             document.getElementById('status').style.borderColor = '#dc3545';
             document.getElementById('status').style.color = '#721c24';

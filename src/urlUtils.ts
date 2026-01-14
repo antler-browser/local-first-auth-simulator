@@ -4,7 +4,7 @@
 
 import type { ProfileId } from './profiles';
 
-const PROFILE_PARAM = 'irlProfile';
+const PROFILE_PARAM = 'test_profile';
 
 /**
  * Build a new URL with the specified profile ID

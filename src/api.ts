@@ -1,14 +1,14 @@
-import type { IRLBrowser, BrowserDetails } from './types';
+import type { LocalFirstAuth, AppDetails } from './types';
 import type { Simulator } from './simulator';
 
 /**
- * Mock implementation of the IRL Browser API
+ * Mock implementation of the Local First Auth API
  */
-export class MockIrlBrowser implements IRLBrowser {
+export class MockLocalFirstAuth implements LocalFirstAuth {
   constructor(private simulator: Simulator) {}
 
   async getProfileDetails(): Promise<string> {
-    console.log('[IRL Browser Simulator] getProfileDetails() called');
+    console.log('[Local First Auth Simulator] getProfileDetails() called');
 
     // Get current profile first
     const profile = this.simulator.getCurrentProfile();
@@ -18,7 +18,7 @@ export class MockIrlBrowser implements IRLBrowser {
       aud: this.simulator.config.jwtDetails?.audience || window.location.origin,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (this.simulator.config.jwtDetails?.expirationOffsetSeconds || 120),
-      type: 'irl:profile:details' as const,
+      type: 'localFirstAuth:profile:details' as const,
       data: {
         did: profile.did,
         name: profile.name,
@@ -35,7 +35,7 @@ export class MockIrlBrowser implements IRLBrowser {
   }
 
   async getAvatar(): Promise<string | null> {
-    console.log('[IRL Browser Simulator] getAvatar() called');
+    console.log('[Local First Auth Simulator] getAvatar() called');
 
     const profile = this.simulator.getCurrentProfile();
 
@@ -50,7 +50,7 @@ export class MockIrlBrowser implements IRLBrowser {
       aud: this.simulator.config.jwtDetails?.audience || window.location.origin,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (this.simulator.config.jwtDetails?.expirationOffsetSeconds || 120),
-      type: 'irl:avatar' as const,
+      type: 'localFirstAuth:avatar' as const,
       data: {
         did: profile.did,
         avatar: profile.avatar
@@ -64,17 +64,17 @@ export class MockIrlBrowser implements IRLBrowser {
     return jwt;
   }
 
-  getBrowserDetails(): BrowserDetails {
+  getAppDetails(): AppDetails {
     return {
-      name: this.simulator.config.browserDetails?.name || 'IRL Browser Simulator',
-      version: this.simulator.config.browserDetails?.version || '1.0.0',
-      platform: this.simulator.config.browserDetails?.platform as 'ios' | 'android' | 'browser',
-      supportedPermissions: this.simulator.config.browserDetails?.supportedPermissions || ['profile']
+      name: this.simulator.config.appDetails?.name || 'Local First Auth Simulator',
+      version: this.simulator.config.appDetails?.version || '1.0.0',
+      platform: this.simulator.config.appDetails?.platform as 'ios' | 'android' | 'browser',
+      supportedPermissions: this.simulator.config.appDetails?.supportedPermissions || ['profile']
     };
   }
 
   async requestPermission(permission: string): Promise<boolean> {
-    console.log(`[IRL Browser Simulator] requestPermission("${permission}") called`);
+    console.log(`[Local First Auth Simulator] requestPermission("${permission}") called`);
 
     // 1. Check if permission is in manifest
     const manifestPermissions = this.simulator.getManifestPermissions();
@@ -99,11 +99,11 @@ export class MockIrlBrowser implements IRLBrowser {
   }
 
   close(): void {
-    console.log('[IRL Browser Simulator] close() called');
+    console.log('[Local First Auth Simulator] close() called');
 
     // Send disconnect message
     this.simulator.sendDisconnectMessage();
 
-    alert('[IRL Browser Simulator]\n\nWebView would close here (returning to QR scanner)');
+    alert('[Local First Auth Simulator]\n\nWebView would close here (returning to QR scanner)');
   }
 }

@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**IRL Browser Simulator** is a development tool that simulates the IRL Browser API for local testing of mini-apps. It allows developers to test mini-apps in a regular browser without needing the Antler mobile app.
+**Local First Auth Simulator** is a development tool that simulates the Local First Auth API for local testing of mini-apps. It allows developers to test mini-apps in a regular browser without needing the Antler mobile app.
 
-**Context:** IRL Browser is a mobile app that lets users scan QR codes at physical locations to launch web-based mini-apps. These mini-apps access a special `window.irlBrowser` JavaScript API for user profile data and permissions. This simulator mocks that entire environment to make it easier to test mini-apps in a regular browser.
+**Context:** Local First Auth is a specification for mobile apps that let users scan QR codes at physical locations to launch web-based mini-apps. These mini-apps access a special `window.localFirstAuth` JavaScript API for user profile data and permissions. This simulator mocks that entire environment to make it easier to test mini-apps in a regular browser.
 
 **Critical:** This is a development-only tool. Never use in production environments.
 
@@ -37,18 +37,18 @@ No automated test suite exists - relies on manual testing via test.html and cons
 
 ### Multi-User Testing
 
- A major usecase for an IRL Browser mini app is multiple people physically present at the same time, each with their own profile. The simulator supports testing with multiple users simultaneously via URL parameters and preset profiles.
+ A major usecase for a Local First Auth mini app is multiple people physically present at the same time, each with their own profile. The simulator supports testing with multiple users simultaneously via URL parameters and preset profiles.
 
 **Quick Start:**
 1. Add simulator to your mini-app (works automatically with no config)
 2. Open your mini-app in browser - loads with Paul Morphy (default profile)
-3. Open Debug UI panel (auto-visible or press Ctrl+Shift+I)
+3. Open Debug UI panel (auto-visible or press Ctrl+Shift+D)
 4. Click "Open as Alice Anderson" or any other profile button
 5. New tab opens with Alice's profile
 6. Repeat for Bob, Charlie, etc. to simulate multiple users
 
 **How it Works:**
-- Simulator auto-detects `?irlProfile=<id>` URL parameter
+- Simulator auto-detects `?test_profile=<id>` URL parameter
 - If no parameter, defaults to Paul Morphy
 - Each browser tab = independent user session with their own profile
 
@@ -63,20 +63,20 @@ No automated test suite exists - relies on manual testing via test.html and cons
 **Example URLs:**
 ```
 http://localhost:3000                  → Paul Morphy (default)
-http://localhost:3000?irlProfile=alice → Alice Anderson
-http://localhost:3000?irlProfile=bob   → Bob Batterson
+http://localhost:3000?test_profile=alice → Alice Anderson
+http://localhost:3000?test_profile=bob   → Bob Batterson
 ```
 
 **URL Parameter Handling:**
 - Preserves existing query parameters
 - Preserves URL hash/fragments (for SPA routing)
-- Example: `app.com?foo=bar#/page` → `app.com?foo=bar&irlProfile=alice#/page`
+- Example: `app.com?foo=bar#/page` → `app.com?foo=bar&test_profile=alice#/page`
 
 **Notes:**
 - Permissions are global (not per-user) for simplicity
 - Each profile has pre-generated Ed25519 keys and DID
 - Profile colors help distinguish tabs visually
-- All profiles exported from `irl-browser-simulator` package
+- All profiles exported from `local-first-auth-simulator` package
 
 ### Publishing
 - `npm run prepublishOnly` - Automatically runs build before publishing to npm
@@ -88,11 +88,11 @@ http://localhost:3000?irlProfile=bob   → Bob Batterson
 The codebase follows a **layered facade pattern** with clear separation of concerns:
 
 ```
-enableIrlBrowserSimulator()           [Entry Point - src/index.ts]
+enableLocalFirstAuthSimulator()       [Entry Point - src/index.ts]
     ↓
 Simulator instance                     [Orchestrator - src/simulator.ts]
-    ↓ injects into window.irlBrowser
-MockIrlBrowser                         [API Implementation - src/api.ts]
+    ↓ injects into window.localFirstAuth
+MockLocalFirstAuth                     [API Implementation - src/api.ts]
     ↓ uses
 JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 ```
@@ -100,7 +100,7 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 ### Key Components
 
 **src/index.ts** - Public API entry point
-- Exports `enableIrlBrowserSimulator()` function
+- Exports `enableLocalFirstAuthSimulator()` function
 - Exports types and utility functions
 - Configuration merging with defaults
 
@@ -108,10 +108,10 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 - Manages state (profile, permissions, manifest, debug UI)
 - Handles lifecycle (initialize, disconnect, error events)
 - Coordinates between API layer and crypto/UI utilities
-- Injects `window.irlBrowser` instance
+- Injects `window.localFirstAuth` instance
 
-**src/api.ts** - MockIrlBrowser class
-- Implements `IRLBrowser` interface from types.ts
+**src/api.ts** - MockLocalFirstAuth class
+- Implements `LocalFirstAuth` interface from types.ts
 - Delegates to Simulator instance (dependency injection)
 - All methods return Promises (simulates async operations)
 - Network delay simulation (default 50ms)
@@ -120,7 +120,7 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 - `createJWT()` - Creates and signs JWTs using Ed25519
 - `decodeJWT()` - Decodes JWT payload (without verification)
 - `verifyJWT()` - Verifies JWT signature using Ed25519 public key
-- Uses `@stablelib/ed25519` for cryptographic signing (matching Antler IRL Browser app)
+- Uses `@stablelib/ed25519` for cryptographic signing (matching Antler app)
 - Uses `base64-js` for base64url encoding
 - Supports both browser and Node.js environments
 
@@ -130,8 +130,8 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 - Generates 64-byte secret keys (32-byte seed + 32-byte public key)
 
 **src/ui.ts** - Debug UI panel
-- Floating panel (bottom-right, collapsible)
-- Keyboard shortcut: Ctrl+Shift+I to toggle
+- Floating panel (bottom-left, collapsible)
+- Keyboard shortcut: Ctrl+Shift+D to toggle
 - Visual feedback for operations
 - Inline CSS for zero dependencies
 
@@ -140,7 +140,7 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 #### 1. JWT Authentication Flow
 All data is passed as **signed JWTs** using Ed25519:
 ```
-1. Method called (e.g., getProfile())
+1. Method called (e.g., getProfileDetails())
 2. Simulator creates payload with DID, timestamps, type, data
 3. JWT signed with profile's private key
 4. JWT string returned to mini-app
@@ -168,7 +168,7 @@ Profiles contain:
 Default profile is "Paul Morphy". See src/profiles.ts for all preset profiles.
 
 #### 4. Permission Model
-Simulates IRL Browser permission system:
+Simulates Local First Auth permission system:
 1. Permissions declared in mini-app manifest
 2. `requestPermission()` shows browser confirm dialog
 3. Permission state tracked (granted/denied)
@@ -178,8 +178,8 @@ Currently supported: `profile`, `profile:socials`
 
 #### 5. Event System
 Uses `window.postMessage` for lifecycle events:
-- `irl-browser-disconnect` - Browser closed/user logged out
-- `irl-browser-error` - Error occurred
+- `localFirstAuth:profile:disconnected` - App closed/user logged out
+- `localFirstAuth:error` - Error occurred
 
 Listen with: `window.addEventListener('message', ...)`
 
@@ -222,14 +222,14 @@ Listen with: `window.addEventListener('message', ...)`
 
 ### Testing Strategy
 - Manual testing via test.html
-- Visual debugging with Debug UI (Ctrl+Shift+I)
+- Visual debugging with Debug UI (Ctrl+Shift+D)
 - Console inspection for JWT payloads
 - No automated tests (currently)
 
 ## Key Dependencies
 
 **Production:**
-- `@stablelib/ed25519` - Ed25519 cryptographic signing (matches Antler IRL Browser app)
+- `@stablelib/ed25519` - Ed25519 cryptographic signing (matches Antler app)
 - `base64-js` - Base64/base64url encoding
 - `base58-universal` - Base58 encoding for DIDs
 
@@ -240,7 +240,7 @@ Listen with: `window.addEventListener('message', ...)`
 
 ## Reference Documentation
 
-- **docs/irl-browser-specification.md** - Complete IRL Browser API specification
+- **docs/local-first-auth-specification.md** - Complete Local First Auth API specification
   - Defines lifecycle, JWT structure, API methods
   - Security best practices and authentication patterns
   - License: CC BY-SA 4.0
@@ -249,8 +249,8 @@ Listen with: `window.addEventListener('message', ...)`
 
 ### Adding a New API Method
 
-1. Add method signature to `IRLBrowser` interface in src/types.ts
-2. Implement method in `MockIrlBrowser` class (src/api.ts)
+1. Add method signature to `LocalFirstAuth` interface in src/types.ts
+2. Implement method in `MockLocalFirstAuth` class (src/api.ts)
 3. Add corresponding logic in `Simulator` class (src/simulator.ts)
 4. Update Debug UI button in src/ui.ts if applicable
 5. Test via test.html
@@ -262,6 +262,6 @@ All JWT creation happens in `createJWT()` (src/jwt.ts). Standard claims:
 - `aud` (audience) - Origin URL
 - `iat` (issued at) - Current timestamp
 - `exp` (expiration) - iat + expiresInSeconds
-- `type` - Operation type (e.g., 'irl:profile:details', 'irl:avatar')
+- `type` - Operation type (e.g., 'localFirstAuth:profile:details', 'localFirstAuth:avatar')
 
 Add custom claims in the data parameter nested under the `data` field.
