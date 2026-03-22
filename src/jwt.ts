@@ -31,7 +31,7 @@ const base64url = {
 
 /**
  * Create and sign a JWT using Ed25519
- * Matches the Antler IRL Browser app implementation
+ * Matches the Antler Local First Auth app implementation
  *
  * @param payload - JWT payload containing claims
  * @param profile - Profile with privateKey (base64-encoded 64-byte secret key)

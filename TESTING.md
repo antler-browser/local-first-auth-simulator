@@ -1,6 +1,6 @@
-# Testing the IRL Browser Simulator
+# Testing the Local First Auth Simulator
 
-To test the IRL Browser Simulator, you can use the `test.html` file.
+To test the Local First Auth Simulator, you can use the `test.html` file.
 
 ```bash
 npm run build:bundle

@@ -240,7 +240,7 @@ Listen with: `window.addEventListener('message', ...)`
 
 ## Reference Documentation
 
-- **docs/local-first-auth-specification.md** - Complete Local First Auth API specification
+- **docs/local-first-auth-spec.md** - Complete Local First Auth API specification
   - Defines lifecycle, JWT structure, API methods
   - Security best practices and authentication patterns
   - License: CC BY-SA 4.0
