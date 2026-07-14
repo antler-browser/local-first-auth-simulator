@@ -75,6 +75,17 @@ That's it! The simulator will:
 
 See `docs/local-first-auth-specification.md` for the Local First Auth Specification, which defines how a Local First Auth app communicates and what is being mocked in this package.
 
+## Per-Origin DIDs
+
+Per the spec's ["Privacy: Per-Origin Key Derivation"](docs/local-first-auth-spec.md) section, a Local First Auth app never signs mini-app payloads with a profile's root key. The simulator follows this: the `iss` and `data.did` in every JWT are a **per-origin DID**, derived deterministically (HKDF-SHA256) from the profile's root key and your app's origin.
+
+What this means when testing:
+- The DID your mini-app sees is **stable for your origin** — the same profile always produces the same DID at the same origin, across reloads.
+- The same profile produces a **different DID at a different origin** (scheme, host, and port all count).
+- The DID your mini-app sees is **not** the preset profile's `did` field (that's the root DID). To assert against the derived value, use `simulator.getOriginDid()`, or derive it yourself with the exported `deriveOriginKeys(rootPrivateKey, origin)`.
+
+> **Breaking change (v2):** prior versions signed with the root key, so JWTs carried the preset profiles' root DIDs. Any test that hard-coded those DIDs needs to switch to `simulator.getOriginDid()`.
+
 ## Configuration Options
 
 ```typescript
@@ -82,7 +93,7 @@ interface SimulatorConfig {
   profile?: Profile;  // Custom profile object, defaults to Paul Morphy profile if no profile is provided
 
   jwtDetails?: {
-    audience?: string;  // Mini-app domain (defaults to window.location.origin)
+    audience?: string;  // Mini-app origin (defaults to window.location.origin); used as the JWT `aud` claim and for per-origin key derivation
     expirationOffsetSeconds?: number;  // JWT expiration (defaults to 120)
   };
 

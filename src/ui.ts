@@ -35,7 +35,8 @@ function createDebugUIImpl(simulator: Simulator): void {
   container.id = 'local-first-auth-simulator-debug';
 
   const profile = simulator.getCurrentProfile();
-  const truncatedDID = profile.did.length > 30 ? profile.did.substring(0, 30) + '...' : profile.did;
+  const originDid = simulator.getOriginDid();
+  const truncateDid = (did: string) => did.length > 30 ? did.substring(0, 30) + '...' : did;
   const profileColor = PROFILE_COLORS[profile.profileId] || '#3498db';
 
   // Get other profiles (excluding current one) for switcher buttons
@@ -309,7 +310,8 @@ function createDebugUIImpl(simulator: Simulator): void {
             }
             <div class="lfa-sim-profile-details">
               <strong>${profile.name}</strong>
-              <div class="lfa-sim-profile-did" title="${profile.did}">${truncatedDID}</div>
+              <div class="lfa-sim-profile-did" title="${originDid}">Site DID: ${truncateDid(originDid)}</div>
+              <div class="lfa-sim-profile-did" title="${profile.did}">Root DID: ${truncateDid(profile.did)}</div>
             </div>
           </div>
         </div>

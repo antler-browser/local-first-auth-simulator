@@ -19,6 +19,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run type-check` - Run TypeScript type checking without emitting files
 
 ### Testing
+- `npm run test:vectors` - Verify per-origin key derivation against the spec test vectors (requires `npm run build` first)
+
 Manual testing workflow:
 ```bash
 npm run build:bundle
@@ -26,7 +28,7 @@ npx serve . -p 8000
 # Open http://localhost:8000/test in browser
 ```
 
-No automated test suite exists - relies on manual testing via test.html and console inspection.
+No automated test suite exists beyond the spec-vector check - relies on manual testing via test.html and console inspection.
 
 ### Publishing
 - `npm version <major|minor|patch>`
@@ -126,6 +128,8 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 
 **src/keyUtils.ts** - DID and key management
 - `generateProfileKeys()` - Creates Ed25519 keypair and DID
+- `deriveOriginKeys(rootPrivateKey, origin)` - Derives the per-origin keypair/DID via HKDF-SHA256 (salt `local-first-auth:origin-key:v1`, info = origin) from the first 32 bytes of the root secret key, per the spec's "Per-Origin Key Derivation" section
+- `normalizeOrigin(value)` - Normalizes a URL to its WHATWG origin (warns and passes through non-URL strings)
 - Implements W3C DID standard with multicodec prefix (0xed01)
 - Generates 64-byte secret keys (32-byte seed + 32-byte public key)
 
@@ -141,8 +145,8 @@ JWT utilities + Ed25519 crypto         [src/jwt.ts, src/keyUtils.ts]
 All data is passed as **signed JWTs** using Ed25519:
 ```
 1. Method called (e.g., getProfileDetails())
-2. Simulator creates payload with DID, timestamps, type, data
-3. JWT signed with profile's private key
+2. Simulator creates payload with per-origin DID, timestamps, type, data
+3. JWT signed with the per-origin key (derived from the profile's root key + audience origin — never the root key itself)
 4. JWT string returned to mini-app
 5. Mini-app can verify signature using public key from DID
 ```
@@ -166,6 +170,8 @@ Profiles contain:
 - `privateKey` - Ed25519 secret key (64 bytes: 32-byte seed + 32-byte public key), base64-encoded
 
 Default profile is "Paul Morphy". See src/profiles.ts for all preset profiles.
+
+**Note:** A profile's stored `did`/`privateKey` is its **root identity**. Per the spec, mini-apps never see the root DID: JWTs are signed with a per-origin key derived via `deriveOriginKeys()`, so the `iss`/`data.did` a mini-app receives differ from the preset profile's `did`. Use `simulator.getOriginDid()` to get the DID a mini-app will see.
 
 #### 4. Permission Model
 Simulates Local First Auth permission system:
@@ -230,6 +236,7 @@ Listen with: `window.addEventListener('message', ...)`
 
 **Production:**
 - `@stablelib/ed25519` - Ed25519 cryptographic signing (matches Antler app)
+- `@stablelib/hkdf` + `@stablelib/sha256` - HKDF-SHA256 for per-origin key derivation
 - `base64-js` - Base64/base64url encoding
 - `base58-universal` - Base58 encoding for DIDs
 

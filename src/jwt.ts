@@ -34,12 +34,12 @@ const base64url = {
  * Matches the Antler Local First Auth app implementation
  *
  * @param payload - JWT payload containing claims
- * @param profile - Profile with privateKey (base64-encoded 64-byte secret key)
+ * @param signer - Object with privateKey (base64-encoded 64-byte secret key)
  * @returns Signed JWT string
  */
-export async function createJWT(payload: JWTPayload, profile: Profile): Promise<string> {
+export async function createJWT(payload: JWTPayload, signer: Pick<Profile, 'privateKey'>): Promise<string> {
   // Decode the private key from base64
-  const privateKeyBytes = base64.toByteArray(profile.privateKey);
+  const privateKeyBytes = base64.toByteArray(signer.privateKey);
 
   // Ed25519 secret key is 64 bytes (32-byte seed + 32-byte public key)
   if (privateKeyBytes.length !== 64) {

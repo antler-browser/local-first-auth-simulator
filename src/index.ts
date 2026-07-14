@@ -6,7 +6,8 @@
 export { Simulator } from './simulator';
 export { MockLocalFirstAuth } from './api';
 export { createJWT, decodeJWT, verifyJWT } from './jwt';
-export { generateProfileKeys } from './keyUtils';
+export { generateProfileKeys, deriveOriginKeys, normalizeOrigin } from './keyUtils';
+export type { OriginKeys } from './keyUtils';
 export { PRESET_PROFILES, getProfileById, getProfileIds, getDefaultProfile } from './profiles';
 export { buildUrlWithProfile, getProfileIdFromUrl, hasProfileInUrl } from './urlUtils';
 export type { ProfileId } from './profiles';

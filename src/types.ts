@@ -35,7 +35,7 @@ export interface SimulatorConfig {
   profile?: Profile;  // defaults to Paul Morphy example profile
 
   jwtDetails?: {
-    audience?: string;  // Mini-app domain (defaults to window.location.origin)
+    audience?: string;  // Mini-app origin (defaults to window.location.origin); normalized to a WHATWG origin and used as the JWT `aud` claim and for per-origin key derivation
     expirationOffsetSeconds?: number;  // JWT expiration offset in seconds from now (defaults to 120)
   };
 

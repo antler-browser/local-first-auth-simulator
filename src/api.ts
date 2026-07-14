@@ -12,21 +12,22 @@ export class MockLocalFirstAuth implements LocalFirstAuth {
 
     // Get current profile first
     const profile = this.simulator.getCurrentProfile();
+    const originDid = this.simulator.getOriginDid();
 
     const payload = {
-      iss: profile.did,
-      aud: this.simulator.config.jwtDetails?.audience || window.location.origin,
+      iss: originDid,
+      aud: this.simulator.config.jwtDetails.audience,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (this.simulator.config.jwtDetails?.expirationOffsetSeconds || 120),
+      exp: Math.floor(Date.now() / 1000) + this.simulator.config.jwtDetails.expirationOffsetSeconds,
       type: 'localFirstAuth:profile:details' as const,
       data: {
-        did: profile.did,
+        did: originDid,
         name: profile.name,
         socials: profile.socials
       }
     };
 
-    const jwt = await this.simulator.createJWT(payload, profile);
+    const jwt = await this.simulator.createJWT(payload);
 
     // Simulate network delay
     await this.simulator.delay();
@@ -45,19 +46,21 @@ export class MockLocalFirstAuth implements LocalFirstAuth {
       return null;
     }
 
+    const originDid = this.simulator.getOriginDid();
+
     const payload = {
-      iss: profile.did,
-      aud: this.simulator.config.jwtDetails?.audience || window.location.origin,
+      iss: originDid,
+      aud: this.simulator.config.jwtDetails.audience,
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + (this.simulator.config.jwtDetails?.expirationOffsetSeconds || 120),
+      exp: Math.floor(Date.now() / 1000) + this.simulator.config.jwtDetails.expirationOffsetSeconds,
       type: 'localFirstAuth:avatar' as const,
       data: {
-        did: profile.did,
+        did: originDid,
         avatar: profile.avatar
       }
     };
 
-    const jwt = await this.simulator.createJWT(payload, profile);
+    const jwt = await this.simulator.createJWT(payload);
 
     await this.simulator.delay();
 

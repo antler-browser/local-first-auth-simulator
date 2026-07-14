@@ -1,5 +1,6 @@
 import type { SimulatorConfig, ResolvedSimulatorConfig, Profile, JWTPayload } from './types';
 import { createJWT } from './jwt';
+import { deriveOriginKeys, normalizeOrigin, type OriginKeys } from './keyUtils';
 import { MockLocalFirstAuth } from './api';
 import { createDebugUI } from './ui';
 import { getDefaultProfile } from './profiles';
@@ -10,6 +11,7 @@ import { getDefaultProfile } from './profiles';
 export class Simulator {
   public config: ResolvedSimulatorConfig;
   private profile: Profile;
+  private originKeys: OriginKeys;
   private permissionStates: Map<string, 'granted' | 'denied'> = new Map();
 
   constructor(config: Partial<SimulatorConfig> = {}) {
@@ -18,6 +20,10 @@ export class Simulator {
 
     // Merge with defaults
     this.config = this.mergeWithDefaults(config);
+
+    // Derive the per-origin signing key (spec: mini-app payloads must never
+    // be signed with the profile's root key)
+    this.originKeys = deriveOriginKeys(this.profile.privateKey, this.config.jwtDetails.audience);
 
     // Inject window.localFirstAuth API
     if (typeof window !== 'undefined') {
@@ -31,15 +37,20 @@ export class Simulator {
 
     // Log initialization
     console.log('[Local First Auth Simulator] Started with profile:', this.profile.name);
-    console.log('[Local First Auth Simulator] DID:', this.profile.did);
+    console.log('[Local First Auth Simulator] Root DID:', this.profile.did);
+    console.log(`[Local First Auth Simulator] Origin DID (${this.config.jwtDetails.audience}):`, this.originKeys.did);
   }
 
   getCurrentProfile(): Profile {
     return this.profile;
   }
 
-  async createJWT(payload: JWTPayload, profile: Profile): Promise<string> {
-    return createJWT(payload, profile);
+  getOriginDid(): string {
+    return this.originKeys.did;
+  }
+
+  async createJWT(payload: JWTPayload): Promise<string> {
+    return createJWT(payload, this.originKeys);
   }
 
   async delay(): Promise<void> {
@@ -73,7 +84,7 @@ export class Simulator {
 
   sendError(code: string, message: string): void {
     const payload: JWTPayload = {
-      iss: this.profile.did,
+      iss: this.originKeys.did,
       aud: this.config.jwtDetails.audience,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + this.config.jwtDetails.expirationOffsetSeconds,
@@ -81,26 +92,26 @@ export class Simulator {
       data: { code, message }
     };
 
-    this.createJWT(payload, this.profile).then(jwt => {
+    this.createJWT(payload).then(jwt => {
       window.postMessage({ jwt }, window.location.origin);
     });
   }
 
   sendDisconnectMessage(): void {
     const payload: JWTPayload = {
-      iss: this.profile.did,
+      iss: this.originKeys.did,
       aud: this.config.jwtDetails.audience,
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + this.config.jwtDetails.expirationOffsetSeconds,
       type: 'localFirstAuth:profile:disconnected',
       data: {
-        did: this.profile.did,
+        did: this.originKeys.did,
         name: this.profile.name,
         socials: this.profile.socials
       }
     };
 
-    this.createJWT(payload, this.profile).then(jwt => {
+    this.createJWT(payload).then(jwt => {
       window.postMessage({ jwt }, window.location.origin);
     });
   }
@@ -108,7 +119,7 @@ export class Simulator {
   private mergeWithDefaults(config: Partial<SimulatorConfig>): ResolvedSimulatorConfig {
     return {
       jwtDetails: {
-        audience: config.jwtDetails?.audience || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost'),
+        audience: normalizeOrigin(config.jwtDetails?.audience || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost')),
         expirationOffsetSeconds: config.jwtDetails?.expirationOffsetSeconds ?? 120
       },
       appDetails: {
